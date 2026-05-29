@@ -13,6 +13,7 @@ interface AgentUser {
 }
 
 const POSITION_LABELS: Record<string, string> = {
+  SUPER_ADMIN: 'Super Administrateur',
   ADMIN: 'Direction',
   MANAGER: 'Manager',
   RECEPTION: 'Réception',
@@ -33,7 +34,9 @@ export default function SecurityPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user?.position !== 'ADMIN') {
+    // Correcting the check: Allow both ADMIN and SUPER_ADMIN
+    const pos = user?.position;
+    if (pos !== 'ADMIN' && pos !== 'SUPER_ADMIN') {
       router.push('/admin');
       return;
     }
