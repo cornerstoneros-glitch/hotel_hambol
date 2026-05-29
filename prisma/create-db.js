@@ -150,50 +150,12 @@ insertSite.run('yopougon', 'Yopougon', 'Ananeraie', "L'Élégance Urbaine");
 console.log('✓ Sites seeded');
 
 // Users
-const clientId = cuid();
-const adminId = cuid();
-insertUser.run(clientId, 'jean-luc@hambol.com', 'Jean-Luc Gbagbo', 'password123', 'CLIENT');
-insertUser.run(adminId, 'direction@hambol.com', 'Direction Hambol', 'hambol2025', 'ADMIN');
-console.log('✓ Users seeded');
-
-// Loyalty
-insertLoyalty.run(cuid(), clientId, 2450, 'GOLD');
-console.log('✓ Loyalty cards seeded');
-
-// Transactions
-insertTransaction.run(cuid(), clientId, 30000, 'PAYMENT', 'PAID', 'Acompte Séjour RH-4920');
-insertTransaction.run(cuid(), clientId, 15400, 'PAYMENT', 'PAID', 'Dîner Gastronomique');
-console.log('✓ Transactions seeded');
-
-// Rooms - Azaguié
-insertRoom.run(cuid(), 'Suite Forestière 101', 'SUITE_DELUXE', 'OCCUPIED', 45000, 'azaguie');
-insertRoom.run(cuid(), 'Chambre Standard 102', 'STANDARD', 'AVAILABLE', 25000, 'azaguie');
-insertRoom.run(cuid(), 'Suite Présidentielle 103', 'PRESIDENTIELLE', 'AVAILABLE', 85000, 'azaguie');
-insertRoom.run(cuid(), 'Chambre Familiale 104', 'FAMILIALE', 'AVAILABLE', 35000, 'azaguie');
-
-// Rooms - Yopougon
-insertRoom.run(cuid(), 'Suite Urbaine 201', 'SUITE_DELUXE', 'OCCUPIED', 45000, 'yopougon');
-insertRoom.run(cuid(), 'Chambre Standard 202', 'STANDARD', 'AVAILABLE', 25000, 'yopougon');
-insertRoom.run(cuid(), 'Suite Excellence 203', 'PRESIDENTIELLE', 'AVAILABLE', 80000, 'yopougon');
-console.log('✓ Rooms seeded');
-
-// Inventory
-insertInventory.run(cuid(), 'Eau minérale (Caisse)', 45, 10, 'caisse', 'azaguie');
-insertInventory.run(cuid(), 'Savon de luxe', 8, 15, 'unité', 'azaguie');
-insertInventory.run(cuid(), 'Draps premium', 24, 20, 'pièce', 'azaguie');
-insertInventory.run(cuid(), 'Eau minérale (Caisse)', 52, 10, 'caisse', 'yopougon');
-insertInventory.run(cuid(), 'Serviettes éponge', 30, 25, 'pièce', 'yopougon');
-console.log('✓ Inventory seeded');
-
-// Staff
-insertStaff.run(cuid(), 'Koné Ibrahim', 'MANAGER', 'kone.ibrahim@hambol.com', '+225 07 00 00 01', 'azaguie');
-insertStaff.run(cuid(), 'Aka Marie', 'RECEPTION', 'aka.marie@hambol.com', '+225 07 00 00 02', 'azaguie');
-insertStaff.run(cuid(), 'Touré Salif', 'CHEF_CUISINIER', 'toure.salif@hambol.com', '+225 07 00 00 03', 'yopougon');
-console.log('✓ Staff seeded');
+insertUser.run(cuid(), 'direction@hambol.com', 'Direction Hambol', 'hambol2025', 'ADMIN');
+console.log('✓ Admin user seeded');
 
 db.close();
-console.log('\n✅ Database successfully initialized!');
+console.log('\n✅ Database successfully initialized (Clean Production State)!');
 console.log('📁 File location:', DB_PATH);
-console.log('\n📋 Test credentials:');
-console.log('   CLIENT  → jean-luc@hambol.com  / password123');
+console.log('\n📋 Production account:');
+console.log('   ADMIN   → direction@hambol.com / hambol2025');
 console.log('   ADMIN   → direction@hambol.com / hambol2025');

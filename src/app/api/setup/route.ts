@@ -200,73 +200,25 @@ export async function GET() {
         ('${rt3}', 'Chambre Familiale', 'Espace généreux pour toute la famille', 35000, 4)
     `);
 
-    // Admin & Staff Users
+    // Admin User
     await prisma.$executeRawUnsafe(`
       INSERT OR IGNORE INTO "User" (id, email, name, password, role)
       VALUES 
-        ('usr-admin', 'direction@hambol.com', 'Direction Hambol', 'hambol2025', 'ADMIN'),
-        ('usr-manager', 'manager@hambol.com', 'Koné Ibrahim', 'hambol2025', 'STAFF'),
-        ('usr-reception', 'aka.marie@hambol.com', 'Aka Marie', 'hambol2025', 'STAFF'),
-        ('usr-chef', 'toure.salif@hambol.com', 'Touré Salif', 'hambol2025', 'STAFF'),
-        ('usr-client', 'jean-luc@hambol.com', 'Jean-Luc Gbagbo', 'password123', 'CLIENT')
+        ('usr-admin', 'direction@hambol.com', 'Direction Hambol', 'hambol2025', 'ADMIN')
     `);
 
-    // Staff Profiles
+    // Staff Profile for Admin (Optional but good for completeness)
     await prisma.$executeRawUnsafe(`
       INSERT OR IGNORE INTO "Staff" (id, userId, siteId, position)
       VALUES
-        ('stf-manager', 'usr-manager', 'azaguie', 'MANAGER'),
-        ('stf-reception', 'usr-reception', 'azaguie', 'RECEPTION'),
-        ('stf-chef', 'usr-chef', 'yopougon', 'CHEF_CUISINIER')
-    `);
-
-    // Loyalty
-    await prisma.$executeRawUnsafe(`
-      INSERT OR IGNORE INTO "LoyaltyProgram" (id, userId, points, tier)
-      VALUES ('lp-client', 'usr-client', 2450, 'GOLD')
-    `);
-
-    // Transactions
-    await prisma.$executeRawUnsafe(`
-      INSERT OR IGNORE INTO "Transaction" (id, userId, amount, type, status, description)
-      VALUES 
-        ('tx-1', 'usr-client', 30000, 'PAYMENT', 'PAID', 'Acompte Séjour RH-4920'),
-        ('tx-2', 'usr-client', 15400, 'PAYMENT', 'PAID', 'Dîner Gastronomique')
-    `);
-
-    // Rooms
-    await prisma.$executeRawUnsafe(`
-      INSERT OR IGNORE INTO "Room" (id, number, status, roomTypeId, siteId)
-      VALUES
-        ('rm-a1', '101', 'OCCUPIED', '${rt2}', 'azaguie'),
-        ('rm-a2', '102', 'AVAILABLE', '${rt1}', 'azaguie'),
-        ('rm-a3', '103', 'AVAILABLE', '${rt3}', 'azaguie'),
-        ('rm-a4', '104', 'CLEANING', '${rt1}', 'azaguie'),
-        ('rm-y1', '201', 'OCCUPIED', '${rt2}', 'yopougon'),
-        ('rm-y2', '202', 'AVAILABLE', '${rt1}', 'yopougon'),
-        ('rm-y3', '203', 'AVAILABLE', '${rt3}', 'yopougon')
-    `);
-
-    // Inventory
-    await prisma.$executeRawUnsafe(`
-      INSERT OR IGNORE INTO "InventoryItem" (id, name, category, quantity, unit, minThreshold, siteId)
-      VALUES
-        ('inv-a1', 'Eau minérale', 'Boissons', 45, 'caisse', 10, 'azaguie'),
-        ('inv-a2', 'Savon de luxe', 'Hygiène', 8, 'unité', 15, 'azaguie'),
-        ('inv-a3', 'Draps premium', 'Linge', 24, 'pièce', 20, 'azaguie'),
-        ('inv-y1', 'Eau minérale', 'Boissons', 52, 'caisse', 10, 'yopougon'),
-        ('inv-y2', 'Serviettes éponge', 'Linge', 30, 'pièce', 25, 'yopougon')
+        ('stf-admin', 'usr-admin', 'azaguie', 'ADMIN')
     `);
 
     return NextResponse.json({
       success: true,
-      message: '✅ Base de données initialisée avec succès!',
+      message: '✅ Base de données initiale de production générée avec succès (Clean State)!',
       comptes: {
-        admin: { email: 'direction@hambol.com', password: 'hambol2025', role: 'ADMIN' },
-        manager: { email: 'manager@hambol.com', password: 'hambol2025', role: 'MANAGER' },
-        reception: { email: 'aka.marie@hambol.com', password: 'hambol2025', role: 'RECEPTION' },
-        chef: { email: 'toure.salif@hambol.com', password: 'hambol2025', role: 'CHEF_CUISINIER' },
-        client: { email: 'jean-luc@hambol.com', password: 'password123', role: 'CLIENT' },
+        admin: { email: 'direction@hambol.com', password: 'hambol2025', role: 'ADMIN' }
       }
     });
 
