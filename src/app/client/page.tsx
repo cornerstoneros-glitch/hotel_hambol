@@ -76,6 +76,7 @@ export default function ClientDashboard() {
 
         {/* Loyalty Jauge */}
         <div className="bg-[#1A1208] text-white p-10 rounded-[3.5rem] shadow-xl flex flex-col justify-between">
+           {/* ... loyalty info (unchanged) ... */}
            <div>
               <h3 className="text-xl font-bold mb-8">Statut Fidélité</h3>
               <div className="space-y-6">
@@ -86,13 +87,6 @@ export default function ClientDashboard() {
                  <div className="relative w-full h-3 bg-white/10 rounded-full overflow-hidden">
                     <div className="absolute top-0 left-0 h-full bg-accent animate-pulse" style={{ width: `${Math.min((loyalty.points / 5000) * 100, 100)}%` }} />
                  </div>
-                 <p className="text-[10px] leading-relaxed text-white/50">
-                    {loyalty.tier !== 'PLATINUM' ? (
-                       <>Plus que <span className="text-white font-bold">{5000 - loyalty.points} points</span> pour atteindre le niveau <span className="text-indigo-400 font-bold uppercase">Platinum</span>.</>
-                    ) : (
-                       <span className="text-accent font-bold uppercase">Niveau Maximum Atteint</span>
-                    )}
-                 </p>
               </div>
            </div>
 
@@ -101,11 +95,31 @@ export default function ClientDashboard() {
               <ul className="space-y-2 text-xs">
                  <li className="flex items-center gap-2">✨ Petit-déjeuner Signature offert</li>
                  <li className="flex items-center gap-2">✨ Accès VIP Piscine & Spa</li>
-                 <li className="flex items-center gap-2">✨ Late Check-out 14:00</li>
               </ul>
            </div>
         </div>
       </div>
+
+      {/* Luxury Pre-Arrival Section */}
+      <section className="bg-sand/30 rounded-[3.5rem] p-12 border border-accent/10">
+         <div className="flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="max-w-xl">
+               <h3 className="text-3xl font-title font-bold text-primary mb-4">Préparez votre arrivée</h3>
+               <p className="text-gray-600 leading-relaxed">
+                  Pour un accueil sans attente, remplissez vos informations de sécurité et personnalisez votre confort dès maintenant. Nos équipes s&apos;occuperont du reste.
+               </p>
+            </div>
+            <div className="flex flex-wrap gap-4">
+               <a href="/client/checkin" className="px-8 py-4 bg-primary text-white rounded-2xl font-bold text-sm shadow-xl hover:bg-primary-dk transition-all flex items-center gap-3">
+                  Check-in Digital 
+                  <span className="px-2 py-0.5 bg-accent text-black text-[9px] rounded-full">À FAIRE</span>
+               </a>
+               <a href="/client/preferences" className="px-8 py-4 bg-white text-primary border border-primary/10 rounded-2xl font-bold text-sm shadow-sm hover:shadow-lg transition-all">
+                  Mes Préférences
+               </a>
+            </div>
+         </div>
+      </section>
 
       {/* Recommended for you */}
       <section className="space-y-8">

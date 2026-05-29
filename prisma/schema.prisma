@@ -50,13 +50,38 @@ model Reservation {
   checkIn    DateTime
   checkOut   DateTime
   status     String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+  checkInStatus String @default("NOT_STARTED") // NOT_STARTED, KYC_SUBMITTED, READY_FOR_KEY, CHECKED_IN
   totalPrice Float
   room       Room     @relation(fields: [roomId], references: [id])
   roomId     String
   client     User     @relation(fields: [clientId], references: [id])
   clientId   String
+  kycData    KycData?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model KycData {
+  id             String      @id @default(cuid())
+  idType         String      // Passport, CNI
+  idNumber       String
+  idExpiry       DateTime?
+  idImage        String?     // URL to uploaded image
+  reservation    Reservation @relation(fields: [reservationId], references: [id])
+  reservationId  String      @unique
+  createdAt      DateTime    @default(now())
+}
+
+model GuestPreferences {
+  id             String   @id @default(cuid())
+  pillowType     String?
+  beverages      String?  // Liste de boissons favorites
+  cleaningTime   String?  // Heure préférée
+  dietaryNotes   String?
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model User {
@@ -68,6 +93,7 @@ model User {
   reservations Reservation[]
   staffProfile Staff?
   loyalty      LoyaltyProgram?
+  preferences  GuestPreferences?
   transactions Transaction[]
   reviews      Review[]
   createdAt    DateTime @default(now())

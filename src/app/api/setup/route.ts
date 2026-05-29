@@ -103,6 +103,7 @@ export async function GET() {
         "checkIn" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "checkOut" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "status" TEXT NOT NULL DEFAULT 'PENDING',
+        "checkInStatus" TEXT NOT NULL DEFAULT 'NOT_STARTED',
         "totalPrice" REAL NOT NULL DEFAULT 0,
         "roomId" TEXT NOT NULL,
         "clientId" TEXT NOT NULL,
@@ -110,6 +111,33 @@ export async function GET() {
         "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("clientId") REFERENCES "User"("id"),
         FOREIGN KEY ("roomId") REFERENCES "Room"("id")
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "KycData" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "idType" TEXT NOT NULL,
+        "idNumber" TEXT NOT NULL,
+        "idExpiry" DATETIME,
+        "idImage" TEXT,
+        "reservationId" TEXT NOT NULL UNIQUE,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("reservationId") REFERENCES "Reservation"("id") ON DELETE CASCADE
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "GuestPreferences" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "pillowType" TEXT,
+        "beverages" TEXT,
+        "cleaningTime" TEXT,
+        "dietaryNotes" TEXT,
+        "userId" TEXT NOT NULL UNIQUE,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
       )
     `);
 
