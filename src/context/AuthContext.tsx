@@ -3,11 +3,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+export type StaffPosition = 'ADMIN' | 'MANAGER' | 'RECEPTION' | 'CHEF_CUISINIER' | 'HOUSEKEEPING' | 'STAFF' | null;
 type Role = 'CLIENT' | 'ADMIN' | 'STAFF' | null;
 
+interface AuthUser {
+  id?: string;
+  name: string;
+  email?: string;
+  role: Role;
+  position: StaffPosition;
+}
+
 interface AuthContextType {
-  user: { name: string; role: Role } | null;
-  login: (email: string, role: Role) => void;
+  user: AuthUser | null;
+  login: (email: string, role: Role, position?: StaffPosition, name?: string, id?: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -15,7 +24,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<{ name: string; role: Role } | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -25,11 +34,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = (email: string, role: Role) => {
-    const mockUser = { name: email.split('@')[0], role };
-    setUser(mockUser);
-    localStorage.setItem('hambol_user', JSON.stringify(mockUser));
-    
+  const login = (email: string, role: Role, position: StaffPosition = null, name?: string, id?: string) => {
+    const authUser: AuthUser = {
+      id,
+      name: name || email.split('@')[0],
+      email,
+      role,
+      position: position || (role === 'ADMIN' ? 'ADMIN' : null),
+    };
+    setUser(authUser);
+    localStorage.setItem('hambol_user', JSON.stringify(authUser));
+
     if (role === 'CLIENT') router.push('/client');
     else router.push('/admin');
   };

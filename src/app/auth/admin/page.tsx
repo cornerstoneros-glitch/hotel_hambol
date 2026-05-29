@@ -1,17 +1,39 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth, StaffPosition } from '@/context/AuthContext';
 import Link from 'next/link';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, 'ADMIN');
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/auth/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        login(data.user.email, data.user.role, data.user.position as StaffPosition, data.user.name, data.user.id);
+      } else {
+        setError(data.error || 'Identifiants incorrects');
+      }
+    } catch {
+      setError('Erreur de connexion au serveur');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,7 +57,7 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                placeholder="staff-id@hambol.com"
+                placeholder="agent@hambol.com"
                 required
               />
            </div>
@@ -50,11 +72,17 @@ export default function AdminLoginPage() {
                 required
               />
            </div>
+           {error && (
+             <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center py-3 px-6 rounded-2xl font-bold">
+               {error}
+             </div>
+           )}
            <button 
              type="submit"
-             className="w-full bg-accent hover:bg-yellow-600 text-black font-bold py-4 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+             disabled={loading}
+             className="w-full bg-accent hover:bg-yellow-600 text-black font-bold py-4 rounded-full shadow-[0_0_20px_rgba(234,179,8,0.3)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
            >
-             Accéder au Management
+             {loading ? 'Vérification...' : 'Accéder au Management'}
            </button>
         </form>
 
