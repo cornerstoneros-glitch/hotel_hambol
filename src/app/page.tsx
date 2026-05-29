@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSite } from "@/context/SiteContext";
+import BookingWidget from "@/components/BookingWidget";
 
 function Slideshow({ images }: { images: string[] }) {
   const [index, setIndex] = useState(0);
@@ -212,6 +213,10 @@ export default function Home() {
         </div>
       </section>
 
+      <div className="px-6 relative z-20">
+        <BookingWidget />
+      </div>
+
       {/* Domain: Hébergement */}
       <section id="hebergement" className="py-32 px-6 max-w-7xl mx-auto w-full reveal">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -281,9 +286,9 @@ export default function Home() {
                   <p className="font-title text-4xl font-bold">Le Choix du Chef à {currentSite}</p>
                   <p className="text-2xl italic opacity-90 font-highlight tracking-wide">{currentData.menu}</p>
                 </div>
-                <button className="bg-white text-primary px-12 py-5 rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-xl">
+                <Link href="/contact?subject=reservation" className="bg-white text-primary px-12 py-5 rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-xl block text-center">
                   Réserver une Table
-                </button>
+                </Link>
              </div>
              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
           </div>
@@ -387,9 +392,9 @@ export default function Home() {
                    </div>
                  ))}
                </div>
-               <button className="bg-primary text-white px-10 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-xl">
+               <Link href="/contact?subject=other" className="bg-primary text-white px-10 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-xl block text-center w-fit">
                  Réserver cet Espace
-               </button>
+               </Link>
             </div>
           </div>
         </div>
@@ -432,9 +437,9 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <button className="w-full sm:w-auto bg-secondary hover:bg-primary-dk text-white px-12 py-5 rounded-full font-bold text-lg shadow-xl transition-all hover:scale-105 active:scale-95">
+                <Link href="/contact?subject=event" className="w-full sm:w-auto block text-center bg-secondary hover:bg-primary-dk text-white px-12 py-5 rounded-full font-bold text-lg shadow-xl transition-all hover:scale-105 active:scale-95">
                   Demander un Devis Personnalisé
-                </button>
+                </Link>
              </div>
           </div>
         </div>
