@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteProvider } from "@/context/SiteContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
+            <WhatsAppFloat />
           </AuthProvider>
         </SiteProvider>
       </body>
