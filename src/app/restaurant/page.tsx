@@ -79,12 +79,14 @@ export default function RestaurantPage() {
           >
             Grillades & Kédjénous
           </button>
-          <button 
-            onClick={() => setActiveTab('day')}
-            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'day' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#F5EDE0] border border-[#D4956A]/20'}`}
-          >
-            Menu du Jour
-          </button>
+          {currentSite !== 'Azaguié' && (
+            <button 
+              onClick={() => setActiveTab('day')}
+              className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'day' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#F5EDE0] border border-[#D4956A]/20'}`}
+            >
+              Menu du Jour
+            </button>
+          )}
           <button 
             onClick={() => setActiveTab('drinks')}
             className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'drinks' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#F5EDE0] border border-[#D4956A]/20'}`}
