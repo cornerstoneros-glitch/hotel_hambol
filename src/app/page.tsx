@@ -112,7 +112,7 @@ export default function Home() {
       subtitle: "Confort urbain et détente en altitude",
       description: "Situé à Yopougon Ananeraie, l'Espace Hambol vous accueille avec ses 11 chambres de standing, son bar climatisé et sa terrasse panoramique au 4ème étage.",
       heroImage: "/images/yopougon/hero.jpg",
-      roomImage: "/images/yopougon/rooms/room_3.jpg",
+      roomImage: "/images/yopougon/rooms/room_3.png",
       featureImage: "/images/yopougon/lavage.jpg",
       rooms: ["11 Chambres VIP", "Frigidaire individuel", "Balcon Privé", "Room Service"],
       roomPricing: "À partir de 10.000F (Passage) | 15.000F (Nuitée) | 20.000F (24H)",
