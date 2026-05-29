@@ -21,7 +21,7 @@ export default function ClientLoginPage() {
       <div className="relative z-10 w-full max-w-md bg-white rounded-[3rem] p-12 shadow-2xl space-y-8 animate-fade-in-up">
         <header className="text-center space-y-2">
            <Link href="/" className="inline-flex items-center gap-2 text-accent font-bold uppercase tracking-widest text-xs mb-4">
-             ← Retour à l'accueil
+             ← Retour à l&apos;accueil
            </Link>
            <h1 className="text-4xl font-title font-bold text-primary italic">Espace Client</h1>
            <p className="text-gray-400 text-sm">Bienvenue dans votre univers Palace</p>
@@ -60,7 +60,7 @@ export default function ClientLoginPage() {
 
         <footer className="text-center">
            <p className="text-xs text-gray-400">
-             Nouveau client ? <span className="text-accent font-bold cursor-pointer hover:underline">Inscrivez-vous pour le programme de fidélité</span>
+             Nouveau client ? <Link href="/auth/client/register" className="text-accent font-bold cursor-pointer hover:underline transition-all">Inscrivez-vous pour le programme de fidélité</Link>
            </p>
         </footer>
       </div>
