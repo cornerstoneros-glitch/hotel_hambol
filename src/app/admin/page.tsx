@@ -1,0 +1,185 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSite } from '@/context/SiteContext';
+
+interface Stats {
+  overall: {
+    occupancy: number;
+    revenue: number;
+    pendingReservations: number;
+  };
+  sites: Array<{
+    siteId: string;
+    siteName: string;
+    occupiedRooms: number;
+    totalRooms: number;
+    occupancyRate: number;
+    revenue: number;
+  }>;
+}
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { currentSite } = useSite();
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch('/api/admin/stats');
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await fetchStats();
+    };
+    init();
+    const interval = setInterval(fetchStats, 30000); // 30s refresh
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
+
+  const currentSiteStats = stats?.sites.find(s => s.siteName === currentSite);
+
+  return (
+    <div className="space-y-10">
+      <header className="flex justify-between items-end">
+        <div>
+          <h1 className="text-4xl font-title font-bold text-primary">Tableau de Bord</h1>
+          <p className="text-gray-400 text-sm mt-2">Vue d&apos;ensemble de l&apos;Espace Hambol — {currentSite}</p>
+        </div>
+        <div className="flex gap-4">
+          <button onClick={fetchStats} className="px-4 py-2 bg-white border border-accent/20 rounded-lg text-xs font-bold hover:bg-accent/5 transition-all">
+            Actualiser les données
+          </button>
+        </div>
+      </header>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+          <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+            <span>Occupation</span>
+            <span className="text-accent">Live</span>
+          </div>
+          <div className="flex items-end gap-3">
+            <span className="text-5xl font-bold text-primary">{currentSiteStats?.occupancyRate || 0}%</span>
+            <span className="text-sm text-gray-400 mb-2">/ 11 chambres</span>
+          </div>
+          <div className="w-full bg-sand h-2 rounded-full overflow-hidden">
+            <div 
+              className="bg-accent h-full transition-all duration-1000" 
+              style={{ width: `${currentSiteStats?.occupancyRate || 0}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+          <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+            <span>Chiffre d&apos;Affaires</span>
+            <span className="text-green-500">Mois</span>
+          </div>
+          <div className="flex items-end gap-2 text-primary font-bold">
+            <span className="text-4xl">{(currentSiteStats?.revenue || 0).toLocaleString()}</span>
+            <span className="text-sm mb-1 uppercase">FCFA</span>
+          </div>
+          <p className="text-[10px] text-gray-400">+12% par rapport au mois dernier</p>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+          <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+            <span>Réservations en attente</span>
+            <span className="p-1 px-2 bg-amber-100 text-amber-700 rounded text-[10px]">Alerte</span>
+          </div>
+          <div className="flex items-end gap-3">
+            <span className="text-5xl font-bold text-primary">{stats?.overall.pendingReservations || 0}</span>
+            <span className="text-sm text-gray-400 mb-2">Demandes</span>
+          </div>
+          <button className="text-accent text-xs font-bold underline">Traiter maintenant</button>
+        </div>
+      </div>
+
+      {/* Grid: Room status (11 Rooms) */}
+      <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+        <h2 className="text-xl font-bold text-primary mb-8 flex items-center gap-3">
+          État des Chambres (11 Suites)
+          <span className="text-[10px] font-bold px-2 py-1 bg-sand text-accent rounded-full">Temps Réel</span>
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          {Array.from({ length: 11 }).map((_, i) => {
+            const roomNum = (i + 1 < 10 ? '0' + (i + 1) : '' + (i + 1));
+            // Simulate status based on some logic or hardcode for now
+            const isOccupied = i < (currentSiteStats?.occupiedRooms || 0);
+            return (
+              <div key={i} className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
+                isOccupied ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-white border-gray-100 hover:border-accent'
+              }`}>
+                <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Numéro</span>
+                <span className="text-2xl font-bold font-title">{roomNum}</span>
+                <span className={`text-[8px] font-bold px-2 py-1 rounded-full ${
+                  isOccupied ? 'bg-white/10' : 'bg-green-100 text-green-700'
+                }`}>
+                  {isOccupied ? 'OCCUPÉ' : 'LIBRE'}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Analytics & Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+           <h2 className="text-xl font-bold text-primary mb-6">Activité Récente</h2>
+           <div className="space-y-6">
+             {[1, 2, 3].map(i => (
+               <div key={i} className="flex gap-4 items-start pb-6 border-b border-gray-50 last:border-0 last:pb-0">
+                 <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center font-bold text-accent">R</div>
+                 <div className="space-y-1">
+                   <p className="text-sm font-bold text-primary">Nouvelle Réservation #HMB-293{i}</p>
+                   <p className="text-xs text-gray-400">Par Jean Dupont • Aujourd&apos;hui à 10:30</p>
+                 </div>
+                 <span className="ml-auto text-[10px] font-bold text-green-500 uppercase">Confirmé</span>
+               </div>
+             ))}
+           </div>
+        </div>
+
+        <div className="bg-[#1A1208] p-10 rounded-[3rem] text-white overflow-hidden relative">
+           <div className="relative z-10 space-y-6">
+             <h2 className="text-xl font-bold">Performances du Site</h2>
+             <div className="space-y-8">
+               <div>
+                  <div className="flex justify-between text-xs mb-2"><span>Objectif Mensuel CA</span><span>75%</span></div>
+                  <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-accent w-3/4 h-full" />
+                  </div>
+               </div>
+               <div>
+                  <div className="flex justify-between text-xs mb-2"><span>Satisfaction Client</span><span>9.8/10</span></div>
+                  <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-green-500 w-[98%] h-full" />
+                  </div>
+               </div>
+             </div>
+           </div>
+           <div className="absolute top-0 right-0 w-64 h-64 bg-accent opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        </div>
+      </div>
+    </div>
+  );
+}
