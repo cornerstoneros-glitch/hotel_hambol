@@ -1,6 +1,7 @@
 'use client';
 
 import { useSite } from '@/context/SiteContext';
+import { useState } from 'react';
 
 const UPCOMING_EVENTS = [
   { id: '1', title: 'Mariage Konan & Awa', date: '2026-06-15', site: 'Azaguié', guestCount: 250, status: 'CONFIRMED' },
@@ -11,6 +12,7 @@ const UPCOMING_EVENTS = [
 
 export default function EventsPage() {
   const { currentSite } = useSite();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="space-y-10">
@@ -19,7 +21,7 @@ export default function EventsPage() {
           <h1 className="text-3xl font-title font-bold text-primary">Événements & Business</h1>
           <p className="text-gray-400 text-sm">Gestion des Salles & Conventions — {currentSite}</p>
         </div>
-        <button className="bg-primary text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-primary-dk transition-all">
+        <button onClick={() => setIsModalOpen(true)} className="bg-primary text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-primary-dk transition-all">
           + Créer un Devis Événement
         </button>
       </header>
@@ -84,6 +86,30 @@ export default function EventsPage() {
           ))}
         </div>
       </div>
+
+      {/* Action Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold font-title text-primary mb-6">Créer un Devis</h2>
+            <form onSubmit={(e) => { e.preventDefault(); alert('Action simulée avec succès.'); setIsModalOpen(false); }} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Titre Événement</label>
+                <input type="text" required placeholder="Ex: Soirée de Gala" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-accent outline-none" />
+              </div>
+              <button type="submit" className="w-full bg-primary text-white font-bold py-4 rounded-xl mt-4 hover:bg-primary-dk transition-all">
+                Générer le Devis
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,11 @@
 'use client';
 
 import { useSite } from '@/context/SiteContext';
+import { useState } from 'react';
 
 export default function FinancePage() {
   const { currentSite } = useSite();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const financialMetrics = [
     { label: 'Chiffre d&apos;Affaires (CA)', value: 12450000, trend: '+15%', color: 'text-primary' },
@@ -11,8 +13,14 @@ export default function FinancePage() {
     { label: 'Bénéfice Net Porté', value: 8250000, trend: '+20%', color: 'text-green-500' },
   ];
 
+  const handleTransactionSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('Saisie comptable enregistrée avec succès (Mode Démo).');
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 relative">
       <header className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-title font-bold text-primary">Comptabilité & Finance</h1>
@@ -22,7 +30,10 @@ export default function FinancePage() {
           <button className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-xs font-bold hover:bg-sand transition-all">
             Exporter (Sage/Excel)
           </button>
-          <button className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-lg hover:bg-primary-dk transition-all">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-lg hover:bg-primary-dk transition-all"
+          >
             + Nouvelle Saisie
           </button>
         </div>
@@ -105,6 +116,41 @@ export default function FinancePage() {
            </button>
         </div>
       </div>
+
+      {/* Transaction Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold font-title text-primary mb-6">Nouvelle Écriture</h2>
+            <form onSubmit={handleTransactionSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Type de saisie</label>
+                <select className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-accent outline-none">
+                  <option>Entrée (Revenu)</option>
+                  <option>Sortie (Dépense)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Montant (FCFA)</label>
+                <input type="number" required placeholder="Ex: 50000" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-accent outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Description</label>
+                <input type="text" required placeholder="Ex: Paiement Fournisseur" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-accent outline-none" />
+              </div>
+              <button type="submit" className="w-full bg-primary text-white font-bold py-4 rounded-xl mt-4 hover:bg-primary-dk transition-all">
+                Enregistrer la Saisie
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

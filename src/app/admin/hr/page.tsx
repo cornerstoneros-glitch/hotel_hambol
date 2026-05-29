@@ -1,6 +1,7 @@
 'use client';
 
 import { useSite } from '@/context/SiteContext';
+import { useState } from 'react';
 
 const STAFF_LIST = [
   { id: '1', name: 'Kouassi Konan', role: 'Réceptionniste', site: 'Azaguié', status: 'ON_DUTY' },
@@ -12,6 +13,7 @@ const STAFF_LIST = [
 
 export default function HRPage() {
   const { currentSite } = useSite();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="space-y-10">
@@ -20,7 +22,7 @@ export default function HRPage() {
           <h1 className="text-3xl font-title font-bold text-primary">Ressources Humaines</h1>
           <p className="text-gray-400 text-sm">Gestion des Équipes — {currentSite}</p>
         </div>
-        <button className="bg-primary text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-primary-dk transition-all">
+        <button onClick={() => setIsModalOpen(true)} className="bg-primary text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl hover:bg-primary-dk transition-all">
           + Ajouter un Employé
         </button>
       </header>
@@ -99,6 +101,30 @@ export default function HRPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Action Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold font-title text-primary mb-6">Ajouter un Employé</h2>
+            <form onSubmit={(e) => { e.preventDefault(); alert('Action simulée avec succès.'); setIsModalOpen(false); }} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Nom Complet</label>
+                <input type="text" required placeholder="Ex: Kouassi Konan" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-accent outline-none" />
+              </div>
+              <button type="submit" className="w-full bg-primary text-white font-bold py-4 rounded-xl mt-4 hover:bg-primary-dk transition-all">
+                Enregistrer l'Employé
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
