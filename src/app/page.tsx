@@ -186,14 +186,21 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-sand" />
         </div>
 
-        <div className="relative z-10 space-y-6 max-w-4xl">
+        <div className="relative z-10 space-y-6 max-w-4xl pt-24 md:pt-32">
           <div className="flex justify-center">
-             <div className="glass px-6 py-2 rounded-full border border-white/20 flex items-center gap-3 animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]" />
+             <div className={`glass px-6 py-2 rounded-full border border-white/20 flex items-center gap-3 transition-colors ${occupancy !== null && occupancy >= 11 ? 'animate-none border-red-500/50 bg-red-500/10' : 'animate-pulse'}`}>
+                <span className={`w-2 h-2 rounded-full shadow-[0_0_10px] ${
+                  occupancy === null ? 'bg-gray-400 shadow-gray-400' :
+                  occupancy >= 11 ? 'bg-red-500 shadow-red-500' :
+                  occupancy >= 8 ? 'bg-orange-500 shadow-orange-500' :
+                  'bg-green-500 shadow-green-500'
+                }`} />
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-                  {occupancy !== null && occupancy < 11 
-                    ? `Disponibilité en Temps Réel : ${11 - occupancy} suites libres` 
-                    : "Complet : Prochaines disponibilités sous peu"}
+                  {occupancy === null 
+                    ? "Vérification des disponibilités..." 
+                    : occupancy < 11 
+                      ? `Disponibilité en Temps Réel : ${11 - occupancy} suites libres` 
+                      : "Complet : Prochaines disponibilités sous peu"}
                 </span>
              </div>
           </div>
