@@ -200,25 +200,28 @@ export async function GET() {
         ('${rt3}', 'Chambre Familiale', 'Espace généreux pour toute la famille', 35000, 4)
     `);
 
-    // Admin User
+    // Admin & Super Admin Users
     await prisma.$executeRawUnsafe(`
       INSERT OR IGNORE INTO "User" (id, email, name, password, role)
       VALUES 
+        ('usr-super', 'admin@hambol.com', 'Super Admin Hambol', 'hambol2025', 'SUPER_ADMIN'),
         ('usr-admin', 'direction@hambol.com', 'Direction Hambol', 'hambol2025', 'ADMIN')
     `);
 
-    // Staff Profile for Admin (Optional but good for completeness)
+    // Staff Profiles
     await prisma.$executeRawUnsafe(`
       INSERT OR IGNORE INTO "Staff" (id, userId, siteId, position)
       VALUES
+        ('stf-super', 'usr-super', 'azaguie', 'SUPER_ADMIN'),
         ('stf-admin', 'usr-admin', 'azaguie', 'ADMIN')
     `);
 
     return NextResponse.json({
       success: true,
-      message: '✅ Base de données initiale de production générée avec succès (Clean State)!',
+      message: '✅ Base de données initiale de production générée avec succès !',
       comptes: {
-        admin: { email: 'direction@hambol.com', password: 'hambol2025', role: 'ADMIN' }
+        superAdmin: { email: 'admin@hambol.com', password: 'hambol2025', role: 'SUPER_ADMIN' },
+        direction: { email: 'direction@hambol.com', password: 'hambol2025', role: 'ADMIN' }
       }
     });
 

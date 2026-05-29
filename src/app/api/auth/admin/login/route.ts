@@ -18,12 +18,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Identifiants incorrects' }, { status: 401 });
     }
 
-    if (user.role !== 'ADMIN' && user.role !== 'STAFF') {
+    if (user.role !== 'ADMIN' && user.role !== 'STAFF' && user.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 });
     }
 
-    // Derive position from staff profile or role
-    const position = user.role === 'ADMIN' ? 'ADMIN' : (user.staffProfile?.position || 'STAFF');
+    // Derive position from role or staff profile
+    const position = user.role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 
+                    user.role === 'ADMIN' ? 'ADMIN' : 
+                    (user.staffProfile?.position || 'STAFF');
 
     return NextResponse.json({
       success: true,

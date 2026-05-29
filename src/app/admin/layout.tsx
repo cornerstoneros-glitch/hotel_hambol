@@ -22,6 +22,7 @@ const ALL_MENU_ITEMS = [
 ];
 
 const POSITION_LABELS: Record<string, string> = {
+  SUPER_ADMIN: 'Super Administrateur',
   ADMIN: 'Direction',
   MANAGER: 'Manager',
   RECEPTION: 'Réception',
@@ -37,7 +38,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   const position = user?.position || 'STAFF';
-  const menuItems = ALL_MENU_ITEMS.filter(item => item.roles.includes(position));
+  const menuItems = ALL_MENU_ITEMS.filter(item => 
+    position === 'SUPER_ADMIN' || item.roles.includes(position)
+  );
 
   return (
     <div className="flex h-screen bg-[#F8F9FA] text-[#1A1208]">

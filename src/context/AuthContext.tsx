@@ -3,8 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export type StaffPosition = 'ADMIN' | 'MANAGER' | 'RECEPTION' | 'CHEF_CUISINIER' | 'HOUSEKEEPING' | 'STAFF' | null;
-type Role = 'CLIENT' | 'ADMIN' | 'STAFF' | null;
+export type StaffPosition = 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'RECEPTION' | 'CHEF_CUISINIER' | 'HOUSEKEEPING' | 'STAFF' | null;
+type Role = 'CLIENT' | 'SUPER_ADMIN' | 'ADMIN' | 'STAFF' | null;
 
 interface AuthUser {
   id?: string;
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: name || email.split('@')[0],
       email,
       role,
-      position: position || (role === 'ADMIN' ? 'ADMIN' : null),
+      position: position || (role === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : role === 'ADMIN' ? 'ADMIN' : null),
     };
     setUser(authUser);
     localStorage.setItem('hambol_user', JSON.stringify(authUser));
