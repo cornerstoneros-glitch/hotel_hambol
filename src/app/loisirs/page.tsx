@@ -1,50 +1,68 @@
 'use client';
 
 import { useSite } from "@/context/SiteContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function LoisirsPage() {
   const { currentSite } = useSite();
   const [activeTab, setActiveTab] = useState('pool'); // pool, sports, kids, relax
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const heroSlides = {
+    'Azaguié': ["/images/azaguie/outdoor_slide_1.jpg", "/images/azaguie/outdoor_slide_2.jpg", "/images/azaguie/outdoor_slide_3.jpg"],
+    'Yopougon': ["/images/yopougon/hero.jpg", "/images/yopougon/lavage_parking.jpg", "/images/yopougon/nightlife.jpg"]
+  };
+
+  const currentSlides = heroSlides[currentSite as keyof typeof heroSlides];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % currentSlides.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [currentSlides.length]);
 
   const leisureData = {
     'pool': [
-      { name: 'Piscine Adulte (Grand Bain)', price: '3000 F / adulte', category: 'Aqua', site: 'all' },
-      { name: 'Piscine Enfant', price: '2000 F / enfant', category: 'Aqua', site: 'all' },
-      { name: 'Bar VIP Immergé', price: 'Accès Libre', category: 'Aqua', site: 'all' },
+      { name: 'Piscine Adulte (Grand Bain)', price: '3000 F / adulte', category: 'Aqua', site: 'all', img: '/images/azaguie/outdoor_slide_1.jpg' },
+      { name: 'Piscine Enfant', price: '2000 F / enfant', category: 'Aqua', site: 'all', img: '/images/azaguie/outdoor_slide_2.jpg' },
+      { name: 'Bar VIP Immergé', price: 'Accès Libre', category: 'Aqua', site: 'all', img: '/images/azaguie/outdoor_slide_3.jpg' },
     ],
     'sports': [
-      { name: 'Maracana (Football)', price: '15000 F / heure', category: 'Sport', site: 'all' },
-      { name: 'Pétanque', price: 'Gratuit pour les résidents', category: 'Sport', site: 'all' },
-      { name: 'Espace Jeux de Société (Ludo, Awalé, Dames)', price: 'Gratuit', category: 'Animation', site: 'all' },
+      { name: 'Maracana (Football)', price: '15000 F / heure', category: 'Sport', site: 'all', img: '/images/azaguie/outdoor_1.jpg' },
+      { name: 'Pétanque', price: 'Gratuit pour les résidents', category: 'Sport', site: 'all', img: '/images/azaguie/outdoor_2.jpg' },
+      { name: 'Espace Jeux de Société (Ludo, Awalé, Dames)', price: 'Gratuit', category: 'Animation', site: 'all', img: '/images/yopougon/hero.jpg' },
     ],
     'relax': [
-      { name: 'Espace Détente & Lits Balinais', price: '10000 F / jour', category: 'Relaxation', site: 'Azaguié' },
-      { name: 'Massages Traditionnels', price: '25000 F / séance', category: 'Bien-être', site: 'Azaguié' },
-      { name: 'Balade en Forêt Guidée', price: '5000 F', category: 'Nature', site: 'Azaguié' },
-      { name: 'Soirée Night Club VIP', price: 'Sur Réservation', category: 'Divertissement', site: 'Yopougon' },
+      { name: 'Espace Détente & Lits Balinais', price: '10000 F / jour', category: 'Relaxation', site: 'Azaguié', img: '/images/azaguie/bungalow.jpg' },
+      { name: 'Massages Traditionnels', price: '25000 F / séance', category: 'Bien-être', site: 'Azaguié', img: '/images/azaguie/room.jpg' },
+      { name: 'Balade en Forêt Guidée', price: '5000 F', category: 'Nature', site: 'Azaguié', img: '/images/azaguie/outdoor_3.jpg' },
+      { name: 'Soirée Night Club VIP', price: 'Sur Réservation', category: 'Divertissement', site: 'Yopougon', img: '/images/yopougon/nightlife.jpg' },
     ],
     'kids': [
-      { name: 'Aire de Jeux Extérieure', price: 'Gratuit', category: 'Enfants', site: 'all' },
-      { name: 'Animations Découvertes', price: 'Sur Programme', category: 'Enfants', site: 'Azaguié' },
+      { name: 'Aire de Jeux Extérieure', price: 'Gratuit', category: 'Enfants', site: 'all', img: '/images/azaguie/outdoor_1.jpg' },
+      { name: 'Animations Découvertes', price: 'Sur Programme', category: 'Enfants', site: 'Azaguié', img: '/images/azaguie/outdoor_2.jpg' },
     ]
   };
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
-      {/* Hero Header */}
-      <div className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <Image 
-          src={currentSite === 'Azaguié' ? "/images/azaguie/pool.jpg" : "/images/yopougon/pool.jpg"} 
-          alt="Loisirs Hero" 
-          fill 
-          className="object-cover brightness-50"
-        />
+      {/* Dynamic Slide Hero Header */}
+      <div className="relative h-[45vh] flex items-center justify-center overflow-hidden">
+        {currentSlides.map((src, index) => (
+          <Image 
+            key={src}
+            src={src} 
+            alt="Loisirs Hero Slide" 
+            fill 
+            className={`object-cover brightness-50 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+          />
+        ))}
         <div className="relative z-10 text-center text-white px-6">
-          <h1 className="font-title text-6xl font-bold mb-4">Détente & Loisirs</h1>
-          <p className="font-body text-xl tracking-widest uppercase opacity-80">Les Activités de {currentSite}</p>
+          <h1 className="font-title text-6xl font-bold mb-4 animate-fade-in-up">Détente & Loisirs</h1>
+          <p className="font-body text-xl tracking-widest uppercase opacity-80 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>Les Activités de {currentSite}</p>
         </div>
       </div>
 
@@ -77,8 +95,8 @@ export default function LoisirsPage() {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="animate-fade-in max-w-4xl mx-auto space-y-8">
+        {/* Content with Illustration Cards */}
+        <div className="animate-fade-in max-w-5xl mx-auto space-y-8">
           <h2 className="font-title text-4xl text-[#8B3A1A] border-b-2 border-[#D4956A] pb-4">
             {activeTab === 'pool' ? 'Complexe Aquatique' : 
              activeTab === 'sports' ? 'Défis & Cohésion' : 
@@ -86,18 +104,29 @@ export default function LoisirsPage() {
              'Activités Juniors'}
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
              {leisureData[activeTab as keyof typeof leisureData]
                 .filter(item => item.site === 'all' || item.site === currentSite)
                 .map((item, id) => (
-                  <div key={id} className="flex flex-col justify-between p-6 bg-white border border-[#D4956A]/20 rounded-3xl shadow-lg hover:shadow-xl transition-all group">
-                    <div className="mb-4">
-                      <p className="text-[10px] text-accent uppercase font-bold tracking-[0.2em] mb-2">{item.category}</p>
-                      <h3 className="font-bold text-xl text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors">{item.name}</h3>
+                  <div key={id} className="relative flex flex-col justify-end h-80 rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all group cursor-pointer">
+                    <Image 
+                      src={item.img} 
+                      alt={item.name} 
+                      fill 
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1A1208]/90 via-[#1A1208]/40 to-transparent" />
+                    
+                    <div className="relative z-10 p-8 flex flex-col justify-end h-full">
+                      <p className="inline-block text-[10px] text-accent font-bold tracking-[0.2em] mb-2 uppercase">{item.category}</p>
+                      <h3 className="font-title text-2xl font-bold text-white mb-4 group-hover:text-accent transition-colors">{item.name}</h3>
+                      <div className="w-full flex justify-between items-center mt-auto border-t border-white/20 pt-4">
+                         <span className="text-white/80 text-sm font-medium">Tarif</span>
+                         <span className="font-bold text-accent bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                           {item.price}
+                         </span>
+                      </div>
                     </div>
-                    <span className="font-bold text-[#8B3A1A] bg-[#FDFBF7] self-start px-4 py-2 rounded-full border border-[#D4956A]/10">
-                      {item.price}
-                    </span>
                   </div>
               ))}
           </div>
