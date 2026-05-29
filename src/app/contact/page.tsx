@@ -10,16 +10,16 @@ export default function ContactPage() {
 
   const contactInfo = {
     'Azaguié': {
-      phone: "+225 00 00 00 00", // Remplacer par vrai numéro si dispo
+      phone: "+225 07 87 17 95 66",
       address: "Ahoua, Azaguié, Côte d'Ivoire",
-      email: "contact.azaguie@hambol.com",
+      email: "azaguie@espace-hambol.com",
       mapImage: "/images/azaguie/hero.jpg",
       description: "Notre sanctuaire naturel situé à Azaguié. Évadez-vous dans nos jardins luxuriants et profitez d'une tranquillité absolue.",
     },
     'Yopougon': {
-      phone: "+225 00 00 00 00", // Remplacer par vrai numéro si dispo
+      phone: "+225 01 40 26 75 34",
       address: "Ananeraie, Yopougon, Abidjan, Côte d'Ivoire",
-      email: "contact.yopougon@hambol.com",
+      email: "yop@espace-hambol.com",
       mapImage: "/images/yopougon/hero.jpg",
       description: "Le confort urbain par excellence. Retrouvez-nous au cœur de Yopougon pour vos séjours, détentes et soirées exclusives.",
     }
