@@ -129,7 +129,7 @@ export default function Home() {
         title: "Terrasse & Événements Prestige",
         description: "Prenez de la hauteur sur notre terrasse panoramique ou organisez vos événements marquants dans nos salles de cérémonie climatisées et modulables.",
         features: ["Terrasse 4ème Étage", "Salle Irène Touré", "Espace VIP", "Lavage Auto Pro"],
-        images: ["/images/common/ceremony.jpg"]
+        images: ["/images/yopougon/hero.jpg", "/images/common/ceremony.jpg", "/images/common/wedding.jpg", "/images/yopougon/nightlife.jpg"]
       }
     }
   };
