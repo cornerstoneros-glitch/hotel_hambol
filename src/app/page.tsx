@@ -482,7 +482,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
           <div className="space-y-6">
             <div className="flex items-center gap-4 justify-center md:justify-start">
-              <div className="relative w-14 h-14 overflow-hidden rounded-full border-2 border-accent/40 shrink-0">
+              <div className="relative w-14 h-14 overflow-hidden rounded-xl border-2 border-accent/40 shrink-0">
                 <Image src="/logo_hambol.jpg" alt="Espace Hambol" fill className="object-cover" />
               </div>
               <h4 className="text-white font-title text-2xl font-bold leading-tight">Espace<br/><span className="text-accent">Hambol</span></h4>

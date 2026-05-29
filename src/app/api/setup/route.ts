@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * ONE-TIME SETUP ENDPOINT
@@ -8,6 +10,17 @@ import prisma from '@/lib/prisma';
  */
 export async function GET() {
   try {
+    // 1. Automatically create database directory if it does not exist
+    const dbUrl = process.env.DATABASE_URL || '';
+    if (dbUrl.startsWith('file:')) {
+      const dbPath = dbUrl.replace('file:', '');
+      const dir = path.dirname(dbPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        console.log(`Created database directory: ${dir}`);
+      }
+    }
+
     // Create all tables using raw SQL (works even if Prisma migration hasn't been run)
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Site" (

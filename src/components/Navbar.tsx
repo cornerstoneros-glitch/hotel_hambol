@@ -59,7 +59,7 @@ export default function Navbar() {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 overflow-hidden rounded-full border-2 border-[#8B3A1A] transition-transform group-hover:scale-105">
+            <div className="relative w-10 h-10 overflow-hidden rounded-xl border-2 border-[#8B3A1A] transition-transform group-hover:scale-105">
               <Image
                 src="/logo_hambol.jpg"
                 alt="Espace Hambol Logo"

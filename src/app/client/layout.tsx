@@ -26,7 +26,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <aside className="w-80 bg-[#1A1208] text-white flex flex-col p-8 border-r border-[#2E7D1E]/10">
         <div className="mb-12">
           <Link href="/" className="group flex items-center gap-3">
-             <div className="relative w-10 h-10 overflow-hidden rounded-full border-2 border-accent/40">
+             <div className="relative w-10 h-10 overflow-hidden rounded-xl border-2 border-accent/40">
                <Image src="/logo_hambol.jpg" alt="Espace Hambol" fill className="object-cover" />
              </div>
              <span className="font-title text-xl font-bold tracking-widest uppercase">Espace<br/><span className="text-accent">Hambol</span></span>
