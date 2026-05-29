@@ -136,19 +136,29 @@ export default function Home() {
 
   const currentData = siteData[currentSite];
   const [occupancy, setOccupancy] = useState<number | null>(null);
+  const [dishes, setDishes] = useState<any[]>([]);
 
   useEffect(() => {
-    const getStats = async () => {
+    const siteId = currentSite === 'Azaguié' ? 'azaguie' : 'yopougon';
+    
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/admin/stats');
-        const data = await res.json();
-        const siteStats = data.sites.find((s: { siteName: string }) => s.siteName === currentSite);
+        const [statsRes, menuRes] = await Promise.all([
+          fetch('/api/admin/stats'),
+          fetch(`/api/admin/menu?siteId=${siteId}`)
+        ]);
+        
+        const statsData = await statsRes.json();
+        const siteStats = statsData.sites.find((s: { siteName: string }) => s.siteName === currentSite);
         if (siteStats) setOccupancy(siteStats.occupiedRooms);
+
+        const menuData = await menuRes.json();
+        setDishes(menuData.dishes);
       } catch (e) {
         console.error(e);
       }
     };
-    getStats();
+    fetchData();
   }, [currentSite]);
 
   useReveal();
@@ -267,16 +277,27 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {currentData.gastronomyDishes.map((dish, i) => (
-              <div key={i} className="group relative h-[450px] rounded-3xl overflow-hidden shadow-2xl">
-                <Image src={dish.img} alt={dish.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-125" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1208] via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-8 left-8 right-8">
-                  <span className="text-accent text-xs font-bold tracking-widest block mb-2 uppercase">{dish.sub}</span>
-                  <h4 className="font-title text-3xl font-bold">{dish.title}</h4>
+            {dishes.length > 0 ? (
+              dishes.slice(0, 3).map((dish, i) => (
+                <div key={i} className="group relative h-[450px] rounded-3xl overflow-hidden shadow-2xl skew-y-1 hover:skew-y-0 transition-all duration-500">
+                  <Image src={dish.image || '/images/food/dish_default.png'} alt={dish.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-125" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1208] via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-8 left-8 right-8">
+                    <span className="text-accent text-xs font-bold tracking-widest block mb-2 uppercase">{dish.category}</span>
+                    <h4 className="font-title text-3xl font-bold text-white">{dish.name}</h4>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              currentData.gastronomyDishes.map((dish, i) => (
+                <div key={i} className="group relative h-[450px] rounded-3xl overflow-hidden shadow-2xl opacity-50 grayscale hover:grayscale-0 transition-all">
+                  <Image src={dish.img} alt={dish.title} fill className="object-cover" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-8 text-center">
+                    <p className="text-white font-bold opacity-40 uppercase tracking-widest">En attente des saveurs du Chef...</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="mt-20 p-12 bg-gradient-to-r from-primary to-primary-dk rounded-[3rem] relative overflow-hidden group shadow-3xl">

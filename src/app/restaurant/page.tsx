@@ -1,45 +1,58 @@
 'use client';
 
 import { useSite } from "@/context/SiteContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function RestaurantPage() {
   const { currentSite } = useSite();
   const [activeTab, setActiveTab] = useState('main'); // main, day, drinks
+  const [dishes, setDishes] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const menuData = {
-    'Menu du Jour': [
-      { day: 'Lundi', items: 'Sauce Légume (Pondeuse, Pintade, Poisson), Kédjénou, Soupe de Carpe', price: '2500F - 8000F' },
-      { day: 'Mardi', items: 'Tchèp Poulet / Poisson, Soupe Pondeuse, Soupe Carpe', price: '2500F - 8000F' },
-      { day: 'Mercredi', items: 'Gouaguassou, Graine, APF / Frites Poulet', price: '2500F - 8000F' },
-      { day: 'Jeudi', items: 'Sauce Feuille, Soupe Carpe, Soupe Pondeuse', price: '2500F' },
-      { day: 'Vendredi', items: 'Djoumblé Poisson Fumé / Pondeuse, Soupe Carpe', price: '2500F - 3000F' },
-      { day: 'Samedi', items: 'Soupe Pondeuse/Carpe, Braisé (Poisson, Poulet), Lapin', price: '5000F - 12000F' },
-      { day: 'Dimanche', items: 'Soupe Pondeuse/Carpe, Braisé, Pommes de terre Saucisse', price: '4500F' },
-    ],
-    'Grillades & Braises': [
-      { name: 'Carpes / Saint Pierre Braisés', price: '4000F - 8000F', category: 'Poisson' },
-      { name: 'Capitaine / Sosso / Sol', price: '3000F - 10000F', category: 'Poisson' },
-      { name: 'Poulet Braisé (Entier)', price: '6000F', category: 'Viande' },
-      { name: 'Pintade / Lapin (Entier)', price: '12000F', category: 'Viande' },
-      { name: 'Brochettes (Bœuf, Poulet, Gésiers)', price: '1500F / brochette', category: 'Snack' },
-    ],
-    'Nos Soupes (Kédjénou)': [
-      { name: 'Lapin / Pintade', price: '6500F (1/2) / 12000F', category: 'Spécialité' },
-      { name: 'Pondeuse', price: '4500F (1/2) / 8000F', category: 'Spécialité' },
-      { name: 'Poissons (Carpe / Saint Pierre)', price: '5000F - 8000F', category: 'Poisson' },
-    ],
-    'Boissons & Sucreries': [
-      { name: 'Heineken, Despérados, Beaufort', price: '700F', category: 'Bières' },
-      { name: 'Cody\'s, Castel, Bock 66', price: '700F', category: 'Bières' },
-      { name: 'Guinness, Budweiser', price: '1000F', category: 'Bières' },
-      { name: 'Chill, Orangina, Malta, Smirnoff Ice', price: '800F', category: 'Sucreries' },
-      { name: 'Coca, Sprite, Fanta, Tonic', price: '600F - 700F', category: 'Softs' },
-      { name: 'Vins', price: 'À partir de 2500F', category: 'Vins' },
-    ]
-  };
+  useEffect(() => {
+    const siteId = currentSite === 'Azaguié' ? 'azaguie' : 'yopougon';
+    const fetchMenu = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/admin/menu?siteId=${siteId}`);
+        const data = await res.json();
+        setDishes(data.dishes);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMenu();
+  }, [currentSite]);
+
+  // Static fallback for Menu du Jour (if not in DB yet)
+  const menuDuJourStatic = [
+    { day: 'Lundi', items: 'Sauce Légume (Pondeuse, Pintade, Poisson), Kédjénou, Soupe de Carpe', price: '2500F - 8000F' },
+    { day: 'Mardi', items: 'Tchèp Poulet / Poisson, Soupe Pondeuse, Soupe Carpe', price: '2500F - 8000F' },
+    { day: 'Mercredi', items: 'Gouaguassou, Graine, APF / Frites Poulet', price: '2500F - 8000F' },
+    { day: 'Jeudi', items: 'Sauce Feuille, Soupe Carpe, Soupe Pondeuse', price: '2500F' },
+    { day: 'Vendredi', items: 'Djoumblé Poisson Fumé / Pondeuse, Soupe Carpe', price: '2500F - 3000F' },
+    { day: 'Samedi', items: 'Soupe Pondeuse/Carpe, Braisé (Poisson, Poulet), Lapin', price: '5000F - 12000F' },
+    { day: 'Dimanche', items: 'Soupe Pondeuse/Carpe, Braisé, Pommes de terre Saucisse', price: '4500F' },
+  ];
+
+  // Static fallback for Drinks
+  const boissonDataStatic = [
+    { name: 'Heineken, Despérados', price: '700F', category: 'Bières' },
+    { name: 'Cody\'s, Castel', price: '700F', category: 'Bières' },
+    { name: 'Guinness', price: '1000F', category: 'Bières' },
+    { name: 'Orangina, Malta', price: '800F', category: 'Sucreries' },
+    { name: 'Coca, Sprite', price: '600F', category: 'Softs' },
+    { name: 'Vins', price: 'À partir de 2500F', category: 'Vins' },
+  ];
+
+  // Filter dynamic dishes
+  const grillades = dishes.filter(d => ['Signature', 'Terroir', 'L Excellence'].includes(d.category));
+  const kedjenous = dishes.filter(d => d.category === 'Tradition');
+  const boissonDataDynamic = dishes.filter(d => ['Boisson', 'Dessert'].includes(d.category));
 
   return (
     <div className="min-h-screen bg-[#F5EDE0]">
@@ -86,27 +99,41 @@ export default function RestaurantPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <section className="space-y-8">
                 <h2 className="font-title text-4xl text-[#8B3A1A] border-b-2 border-[#D4956A] pb-4">Nos Grillades & Braises</h2>
-                {menuData['Grillades & Braises'].map((item, id) => (
+                {grillades.length > 0 ? grillades.map((item, id) => (
                   <div key={id} className="flex justify-between items-center group">
-                    <div>
-                      <h3 className="font-bold text-lg text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors">{item.name}</h3>
-                      <p className="text-xs text-[#2E7D1E] uppercase font-bold tracking-tighter">{item.category}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-white overflow-hidden relative shadow-sm border border-[#D4956A]/10">
+                        <Image src={item.image || "/images/food/dish_default.png"} alt={item.name} fill className="object-cover" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors">{item.name}</h3>
+                        <p className="text-xs text-[#2E7D1E] uppercase font-bold tracking-tighter">{item.category}</p>
+                      </div>
                     </div>
-                    <span className="font-bold text-[#8B3A1A]">{item.price}</span>
+                    <span className="font-bold text-[#8B3A1A]">{item.price ? `${item.price.toLocaleString()}F` : 'Sur carte'}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-gray-400 italic">Chef en préparation...</p>
+                )}
               </section>
               <section className="space-y-8">
                 <h2 className="font-title text-4xl text-[#8B3A1A] border-b-2 border-[#D4956A] pb-4">Nos Soupes (Kédjénou)</h2>
-                {menuData['Nos Soupes (Kédjénou)'].map((item, id) => (
+                {kedjenous.length > 0 ? kedjenous.map((item, id) => (
                   <div key={id} className="flex justify-between items-center group">
-                    <div>
-                      <h3 className="font-bold text-lg text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors">{item.name}</h3>
-                      <p className="text-xs text-[#2E7D1E] uppercase font-bold tracking-tighter">{item.category}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-white overflow-hidden relative shadow-sm border border-[#D4956A]/10">
+                        <Image src={item.image || "/images/food/dish_default.png"} alt={item.name} fill className="object-cover" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors">{item.name}</h3>
+                        <p className="text-xs text-[#2E7D1E] uppercase font-bold tracking-tighter">{item.category}</p>
+                      </div>
                     </div>
-                    <span className="font-bold text-[#8B3A1A]">{item.price}</span>
+                    <span className="font-bold text-[#8B3A1A]">{item.price ? `${item.price.toLocaleString()}F` : 'Sur carte'}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-gray-400 italic">Saveurs en mijotage...</p>
+                )}
               </section>
             </div>
           )}
@@ -114,7 +141,7 @@ export default function RestaurantPage() {
           {activeTab === 'day' && (
             <div className="max-w-4xl mx-auto space-y-6">
                <h2 className="font-title text-4xl text-center text-[#8B3A1A] mb-12 italic">Le Rendez-vous Quotidien</h2>
-               {menuData['Menu du Jour'].map((item, id) => (
+               {menuDuJourStatic.map((item, id) => (
                   <div key={id} className="flex flex-col sm:flex-row gap-4 justify-between items-center p-8 bg-white border-l-8 border-[#2E7D1E] rounded-2xl shadow-lg hover:shadow-2xl transition-all">
                     <span className="font-title text-3xl font-bold text-[#8B3A1A] w-32">{item.day}</span>
                     <div className="flex-1 text-center sm:text-left">
@@ -132,10 +159,10 @@ export default function RestaurantPage() {
                {['Bières', 'Sucreries', 'Softs', 'Vins'].map(cat => (
                   <section key={cat} className="space-y-6">
                     <h2 className="font-title text-3xl text-[#8B3A1A] border-b border-[#D4956A]/30 pb-2">{cat}</h2>
-                    {menuData['Boissons & Sucreries'].filter(i => i.category === cat || (cat === 'Bières' && i.category === 'Bières')).map((item, id) => (
+                    {(boissonDataDynamic.length > 0 ? boissonDataDynamic : boissonDataStatic).filter(i => i.category === cat || (cat === 'Bières' && i.category === 'Bières') || (cat === 'Sucreries' && i.category === 'Sucreries') || (cat === 'Softs' && i.category === 'Softs') || (cat === 'Vins' && i.category === 'Vins')).map((item, id) => (
                       <div key={id} className="flex justify-between items-center gap-4">
                         <span className="font-bold text-sm text-[#1A1208] flex-1">{item.name}</span>
-                        <span className="text-[#8B3A1A] font-bold text-sm whitespace-nowrap">{item.price}</span>
+                        <span className="text-[#8B3A1A] font-bold text-sm whitespace-nowrap">{item.price ? (typeof item.price === 'number' ? `${item.price.toLocaleString()}F` : item.price) : 'Sur carte'}</span>
                       </div>
                     ))}
                   </section>

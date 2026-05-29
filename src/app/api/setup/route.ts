@@ -180,6 +180,22 @@ export async function GET() {
       )
     `);
 
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "Dish" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL,
+        "category" TEXT NOT NULL,
+        "description" TEXT,
+        "price" REAL,
+        "image" TEXT,
+        "isActive" BOOLEAN NOT NULL DEFAULT 1,
+        "siteId" TEXT NOT NULL,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("siteId") REFERENCES "Site"("id")
+      )
+    `);
+
     // ─── SEED DATA ───────────────────────────────────────────────────────────
 
     // Sites
@@ -198,6 +214,18 @@ export async function GET() {
         ('${rt1}', 'Chambre Standard', 'Chambre élégante et confortable', 25000, 2),
         ('${rt2}', 'Suite Deluxe', 'Suite luxueuse avec vue panoramique', 45000, 2),
         ('${rt3}', 'Chambre Familiale', 'Espace généreux pour toute la famille', 35000, 4)
+    `);
+
+    // Dishes (Initial Menu)
+    await prisma.$executeRawUnsafe(`
+      INSERT OR IGNORE INTO "Dish" (id, name, category, image, siteId)
+      VALUES 
+        ('d1', 'Carpes & Poissons Braisés', 'Signature', '/images/food/dish_1.png', 'azaguie'),
+        ('d2', 'Alloco & Bananes Fraîches', 'Terroir', '/images/food/dish_2.png', 'azaguie'),
+        ('d3', 'Spécialités de Riz & Soupes', 'Tradition', '/images/food/dish_3.png', 'azaguie'),
+        ('d4', 'Gastronomie Fine', 'L Excellence', '/images/yopougon/food/cuisine_1.png', 'yopougon'),
+        ('d5', 'Spécialités du Chef', 'Signature', '/images/yopougon/food/cuisine_2.png', 'yopougon'),
+        ('d6', 'Saveurs d Antan', 'Tradition', '/images/yopougon/food/cuisine_3.png', 'yopougon')
     `);
 
     // Admin & Super Admin Users
