@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "Espace Hambol - Restaurant, Hébergement, Loisirs",
   description: "Découvrez l'élégance et l'authenticité de l'Espace Hambol. Restaurant raffiné, hébergement de luxe et activités de loisirs au cœur d'un cadre enchanteur.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.jpg",
   }
 };
 
