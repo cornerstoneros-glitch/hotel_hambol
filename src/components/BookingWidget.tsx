@@ -23,7 +23,7 @@ export default function BookingWidget() {
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto -mt-16 relative z-30 border border-[#D4956A]/20">
+    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl mx-auto relative z-30 border border-[#D4956A]/20">
       <div className="flex border-b border-gray-100 p-2 gap-2 overflow-x-auto no-scrollbar">
         {[
           { id: 'rooms', label: 'Hébergement' },

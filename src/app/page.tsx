@@ -230,7 +230,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="px-6 relative z-20">
+      <div className="px-6 relative z-20 pt-12">
         <BookingWidget />
       </div>
 
