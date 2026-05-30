@@ -78,35 +78,35 @@ export default function RestaurantPage() {
   const activeDishes = dishes.filter(d => d.isActive !== false);
   const grillades   = activeDishes.filter(d => ['Signature', 'Terroir', 'L Excellence'].includes(d.category));
   const kedjenous   = activeDishes.filter(d => d.category === 'Tradition');
-  const boissonDataDynamic = activeDishes.filter(d => ['Boisson', 'Dessert'].includes(d.category));
+  const boissonDataDynamic = activeDishes.filter(d => ['Boisson', 'Dessert', 'Bières', 'Sucreries', 'Softs', 'Vins'].includes(d.category));
 
   // Helper: render a dish card with components
-  const DishCard = ({ item }: { item: Dish }) => (
-    <div className="flex flex-col gap-2 group">
+  const DishCard = ({ item }: { item: any }) => (
+    <div className="flex flex-col gap-3 group">
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-white overflow-hidden relative shadow-sm border border-[#D4956A]/10 flex-shrink-0">
             <Image src={item.image || "/images/food/dish_default.png"} alt={item.name} fill className="object-cover" />
           </div>
           <div>
-            <h3 className="font-bold text-lg text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors">{item.name}</h3>
-            <p className="text-xs text-[#2E7D1E] uppercase font-bold tracking-tighter">{item.category}</p>
+            <h3 className="font-bold text-base text-[#1A1208] group-hover:text-[#8B3A1A] transition-colors leading-tight">{item.name}</h3>
+            <p className="text-[10px] text-[#2E7D1E] uppercase font-bold tracking-tight">{item.category}</p>
             {item.description && (
-              <p className="text-xs text-gray-400 mt-0.5 max-w-xs">{item.description}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5 max-w-xs">{item.description}</p>
             )}
           </div>
         </div>
-        <span className="font-bold text-[#8B3A1A] ml-4 whitespace-nowrap">
-          {item.price ? `${item.price.toLocaleString()}F` : 'Sur carte'}
+        <span className="font-bold text-[#8B3A1A] ml-2 whitespace-nowrap text-sm">
+          {item.price ? (typeof item.price === 'number' ? `${item.price.toLocaleString()}F` : item.price) : 'Sur carte'}
         </span>
       </div>
       {/* Composants */}
       {item.components && item.components.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pl-16">
-          {item.components.map(c => (
+          {item.components.map((c: any) => (
             <span
               key={c.id}
-              className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${COMP_STYLE[c.type] ?? 'bg-gray-50 text-gray-500 border border-gray-100'}`}
+              className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${COMP_STYLE[c.type] ?? 'bg-gray-50 text-gray-500 border border-gray-100'}`}
             >
               {c.name}{c.optional ? ' *' : ''}
             </span>
@@ -200,24 +200,24 @@ export default function RestaurantPage() {
             )}
 
             {activeTab === 'drinks' && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                {['Bières', 'Sucreries', 'Softs', 'Vins'].map(cat => (
-                  <section key={cat} className="space-y-6">
-                    <h2 className="font-title text-3xl text-[#8B3A1A] border-b border-[#D4956A]/30 pb-2">{cat}</h2>
-                    {(boissonDataDynamic.length > 0 ? boissonDataDynamic : boissonDataStatic)
-                      .filter(i => i.category === cat)
-                      .map((item, id) => (
-                        <div key={id} className="flex justify-between items-center gap-4">
-                          <span className="font-bold text-sm text-[#1A1208] flex-1">{item.name}</span>
-                          <span className="text-[#8B3A1A] font-bold text-sm whitespace-nowrap">
-                            {item.price
-                              ? (typeof item.price === 'number' ? `${item.price.toLocaleString()}F` : item.price)
-                              : 'Sur carte'}
-                          </span>
-                        </div>
-                      ))}
-                  </section>
-                ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-10">
+                {['Bières', 'Sucreries', 'Softs', 'Vins', 'Boisson', 'Dessert'].map(cat => {
+                  const items = (boissonDataDynamic.length > 0 ? boissonDataDynamic : boissonDataStatic)
+                    .filter(i => i.category === cat);
+                  
+                  if (items.length === 0) return null;
+
+                  return (
+                    <section key={cat} className="space-y-6">
+                      <h2 className="font-title text-3xl text-[#8B3A1A] border-b border-[#D4956A]/30 pb-2">{cat}</h2>
+                      <div className="space-y-6">
+                        {items.map((item: any, id) => (
+                          <DishCard key={item.id || `static-${cat}-${id}`} item={item} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -23,7 +23,7 @@ interface Dish {
   components: DishComponent[];
 }
 
-const CATEGORIES = ['Signature', 'Terroir', 'Tradition', 'L Excellence', 'Dessert', 'Boisson'];
+const CATEGORIES = ['Signature', 'Terroir', 'Tradition', 'L Excellence', 'Dessert', 'Boisson', 'Bières', 'Sucreries', 'Softs', 'Vins'];
 const COMPONENT_TYPES = [
   { value: 'PROTEIN',  label: '🍗 Protéine',  color: 'bg-red-100 text-red-700' },
   { value: 'GARNISH',  label: '🌿 Garniture',  color: 'bg-green-100 text-green-700' },
