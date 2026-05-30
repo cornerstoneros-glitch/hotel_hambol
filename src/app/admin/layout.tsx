@@ -3,8 +3,8 @@
 import { useSite } from '@/context/SiteContext';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 // Define which menu items each position can see
 const ALL_MENU_ITEMS = [
@@ -33,9 +33,32 @@ const POSITION_LABELS: Record<string, string> = {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { currentSite, setCurrentSite } = useSite();
-  const { logout, user } = useAuth();
+  const { logout, user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  // ── Protection des accès Admin ──────────────────────────────────────
+  useEffect(() => {
+    // Si on a fini de charger le user (isAuthenticated est prêt)
+    if (isAuthenticated) {
+      if (user?.role === 'CLIENT') {
+        router.replace('/'); // Les clients n'ont rien à faire ici
+      }
+    } else {
+      // Optionnel: on peut attendre un peu ou rediriger direct vers login
+      // router.replace('/login'); 
+    }
+  }, [user, isAuthenticated, router]);
+
+  // Pendant le chargement initial ou si non autorisé, on peut afficher un loader ou rien
+  if (!user || user.role === 'CLIENT') {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#F8F9FA]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
 
   const position = user?.position || 'STAFF';
   const menuItems = ALL_MENU_ITEMS.filter(item => 
