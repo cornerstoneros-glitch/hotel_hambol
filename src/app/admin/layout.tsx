@@ -18,6 +18,7 @@ const ALL_MENU_ITEMS = [
   { name: 'Comptabilité', path: '/admin/finance', icon: '💰', roles: ['ADMIN'] },
   { name: 'Clients (CRM)', path: '/admin/clients', icon: '🤝', roles: ['ADMIN', 'MANAGER', 'RECEPTION'] },
   { name: 'Ressources Humaines', path: '/admin/hr', icon: '👥', roles: ['ADMIN', 'MANAGER'] },
+  { name: 'Webmail', path: '/admin/webmail', icon: '📧', roles: ['ADMIN', 'MANAGER'] },
   { name: 'Sécurité & Accès', path: '/admin/security', icon: '🔐', roles: ['ADMIN'] },
 ];
 
