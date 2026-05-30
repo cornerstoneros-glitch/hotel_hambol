@@ -149,7 +149,7 @@ export default function Home() {
         ]);
         
         const statsData = await statsRes.json();
-        const siteStats = statsData.sites.find((s: { siteName: string }) => s.siteName === currentSite);
+        const siteStats = statsData.sites?.find((s: { siteName: string }) => s.siteName === currentSite);
         if (siteStats) setOccupancy(siteStats.occupiedRooms);
 
         const menuData = await menuRes.json();
