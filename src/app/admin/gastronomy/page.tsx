@@ -161,6 +161,37 @@ export default function GastronomyAdmin() {
     }
   };
 
+  // ── Upload Image ─────────────────────────────────────────────────
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setForm(prev => ({ ...prev, image: data.url }));
+      } else {
+        alert("Erreur lors de l'upload de l'image.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erreur réseau lors de l'upload.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="space-y-10">
       {/* Header */}
@@ -335,15 +366,65 @@ export default function GastronomyAdmin() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Image (chemin ou URL)</label>
-                  <input
-                    type="text"
-                    value={form.image}
-                    onChange={e => setForm({ ...form, image: e.target.value })}
-                    placeholder="/images/food/mon_plat.png"
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-3 text-sm focus:ring-2 focus:ring-accent outline-none"
-                  />
+                <div className="space-y-4">
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest">Image du Plat</label>
+                  
+                  <div className="flex gap-6 items-start">
+                    {/* Preview */}
+                    <div className="w-32 h-32 rounded-2xl bg-gray-100 border border-gray-100 overflow-hidden relative shrink-0 shadow-inner">
+                      <Image
+                        src={form.image || '/images/food/dish_default.png'}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                      />
+                      {uploading && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-3">
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id="dish-image-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          disabled={uploading}
+                        />
+                        <label
+                          htmlFor="dish-image-upload"
+                          className={`flex items-center justify-center gap-2 w-full py-3 rounded-2xl border-2 border-dashed transition-all cursor-pointer ${
+                            uploading ? 'bg-gray-50 border-gray-200' : 'bg-accent/5 border-accent/20 hover:border-accent hover:bg-accent/10'
+                          }`}
+                        >
+                          <span className="text-xl">📷</span>
+                          <span className="text-sm font-bold text-primary">
+                            {uploading ? 'Envoi...' : 'Téléverser depuis cet appareil'}
+                          </span>
+                        </label>
+                      </div>
+
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <span className="text-gray-400 text-xs font-mono">URL</span>
+                        </div>
+                        <input
+                          type="text"
+                          value={form.image}
+                          onChange={e => setForm({ ...form, image: e.target.value })}
+                          placeholder="/images/food/plat.png"
+                          className="w-full border border-gray-200 rounded-2xl pl-12 pr-5 py-2.5 text-xs focus:ring-2 focus:ring-accent outline-none font-mono"
+                        />
+                      </div>
+                      <p className="text-[10px] text-gray-400 italic">
+                        Les images sont sauvegardées dans <code>/public/uploads/menu/</code>
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3">
