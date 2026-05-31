@@ -1,7 +1,8 @@
+'use client';
+
 import { useSite } from '@/context/SiteContext';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 
 type Step = 'search' | 'selection' | 'confirmation' | 'success';
 
