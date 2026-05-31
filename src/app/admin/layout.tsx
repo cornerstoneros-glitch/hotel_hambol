@@ -20,6 +20,7 @@ const ALL_MENU_ITEMS = [
   { name: 'Ressources Humaines', path: '/admin/hr', icon: '👥', roles: ['ADMIN', 'MANAGER'] },
   { name: 'Webmail', path: '/admin/webmail', icon: '📧', roles: ['ADMIN', 'MANAGER'] },
   { name: 'Sécurité & Accès', path: '/admin/security', icon: '🔐', roles: ['ADMIN'] },
+  { name: 'Promotions', path: '/admin/promotions', icon: '📢', roles: ['ADMIN', 'MANAGER'] },
 ];
 
 const POSITION_LABELS: Record<string, string> = {

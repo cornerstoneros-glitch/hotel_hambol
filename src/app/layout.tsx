@@ -5,6 +5,8 @@ import { SiteProvider } from "@/context/SiteContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import GlobalPopup from "@/components/GlobalPopup";
+import FloatingAd from "@/components/FloatingAd";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -42,6 +44,8 @@ export default function RootLayout({
               {children}
             </main>
             <WhatsAppFloat />
+            <GlobalPopup />
+            <FloatingAd />
           </AuthProvider>
         </SiteProvider>
       </body>

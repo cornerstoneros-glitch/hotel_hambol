@@ -1,0 +1,34 @@
+{
+  "Azaguié": {
+    "popup": {
+      "enabled": false,
+      "imageUrl": "",
+      "link": "",
+      "title": "Offre Spéciale Azaguié"
+    },
+    "floatingAd": {
+      "enabled": false,
+      "imageUrl": "",
+      "link": "",
+      "title": "Découvrez nos offres",
+      "delayMs": 6000,
+      "intervalMs": 45000
+    }
+  },
+  "Yopougon": {
+    "popup": {
+      "enabled": false,
+      "imageUrl": "",
+      "link": "",
+      "title": "Offre Spéciale Yopougon"
+    },
+    "floatingAd": {
+      "enabled": false,
+      "imageUrl": "",
+      "link": "",
+      "title": "Découvrez nos offres",
+      "delayMs": 6000,
+      "intervalMs": 45000
+    }
+  }
+}
