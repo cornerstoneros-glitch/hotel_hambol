@@ -33,10 +33,18 @@ export default function FinancePage() {
     try {
       const res = await fetch('/api/admin/finance');
       const data = await res.json();
-      setMetrics(data.metrics || {});
+      
+      // Ensure metrics always has the required properties to avoid .toLocaleString() crash
+      setMetrics({
+        revenue: data?.metrics?.revenue ?? 0,
+        expenses: data?.metrics?.expenses ?? 0,
+        netProfit: data?.metrics?.netProfit ?? 0,
+        pending: data?.metrics?.pending ?? 0
+      });
+      
       setTransactions(data.transactions || []);
     } catch (e) {
-      console.error(e);
+      console.error('Fetch finance data error:', e);
     } finally {
       setLoading(false);
     }
