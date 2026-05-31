@@ -1,7 +1,5 @@
-'use client';
-
 import { useSite } from '@/context/SiteContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 type Step = 'search' | 'selection' | 'confirmation' | 'success';
@@ -14,7 +12,7 @@ interface RoomType {
   capacity: number;
 }
 
-export default function ReservationPage() {
+function ReservationForm() {
   const { currentSite } = useSite();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('search');
@@ -105,7 +103,7 @@ export default function ReservationPage() {
       } else {
         setError(data.error || 'Aucune chambre disponible pour ce type sur ce site.');
       }
-    } catch (err) {
+    } catch {
       setError('Erreur de connexion au serveur.');
     } finally {
       setLoading(false);
@@ -246,11 +244,11 @@ export default function ReservationPage() {
                 <div className="flex justify-between text-sm text-[#max-w-xs] text-[#6B5C4E] mt-2 pt-2 border-t border-[#D4956A]/20">
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase font-bold text-gray-400">Arrivée</span>
-                    <span className="font-bold font-mono">{new Date(formData.checkIn).toLocaleString('fr-FR')}</span>
+                    <span className="font-bold font-mono">{formData.checkIn ? new Date(formData.checkIn).toLocaleString('fr-FR') : '-'}</span>
                   </div>
                   <div className="flex flex-col text-right">
                     <span className="text-[10px] uppercase font-bold text-gray-400">Départ Prévu</span>
-                    <span className="font-bold font-mono">{new Date(formData.checkOut).toLocaleString('fr-FR')}</span>
+                    <span className="font-bold font-mono">{formData.checkOut ? new Date(formData.checkOut).toLocaleString('fr-FR') : '-'}</span>
                   </div>
                 </div>
               </div>
@@ -280,7 +278,7 @@ export default function ReservationPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-title text-white font-bold text-[#8B3A1A] bg-[#8B3A1A] inline-block px-6 py-2 rounded-2xl">Demande Confirmée !</h2>
+              <h2 className="text-3xl font-title font-bold text-[#8B3A1A]">Demande Confirmée !</h2>
               <p className="text-[#6B5C4E] max-w-md mx-auto font-medium">
                 Votre demande de réservation pour <span className="font-bold">{currentSite}</span> a été transmise à notre équipe. 
                 Vous recevrez une confirmation par email très prochainement.
@@ -296,5 +294,17 @@ export default function ReservationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ReservationPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-[#F5EDE0] min-h-screen pt-32 flex items-center justify-center">
+        <div className="text-[#8B3A1A] font-bold animate-pulse">Chargement du système de réservation...</div>
+      </div>
+    }>
+      <ReservationForm />
+    </Suspense>
   );
 }
