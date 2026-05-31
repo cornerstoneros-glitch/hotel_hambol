@@ -12,39 +12,45 @@ interface Reservation {
   room: { number: string };
 }
 
+interface Room {
+  id: string;
+  number: string;
+}
+
 export default function ReservationsGrid() {
   const { currentSite } = useSite();
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewDate, setViewDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const daysCount = 14; // Showing 2 weeks
+  const daysCount = 14; 
   const days = Array.from({ length: daysCount }).map((_, i) => {
     const d = new Date(viewDate);
     d.setDate(d.getDate() + i);
     return d;
   });
 
-  const fetchReservations = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/admin/reservations');
-      const data = await res.json();
-      setReservations(data.reservations || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const init = async () => {
-      await fetchReservations();
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const siteId = currentSite.toLowerCase().includes('azaguie') || currentSite.toLowerCase().includes('azaguié') 
+          ? 'azaguie' 
+          : 'yopougon';
+        const res = await fetch(`/api/admin/reservations?siteId=${siteId}`);
+        const data = await res.json();
+        setReservations(data.reservations || []);
+        setRooms(data.rooms || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
-    init();
-  }, []);
+    loadData();
+  }, [currentSite, viewDate]); // Added viewDate as dependency if needed for future filtering
 
   const getOccupancy = (roomNum: string, date: Date) => {
     return reservations.find(res => {
@@ -63,7 +69,7 @@ export default function ReservationsGrid() {
       <header className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-title font-bold text-primary text-primary-content">Planning des Chambres</h1>
-          <p className="text-gray-400 text-sm">Gestion visuelle des 11 suites — {currentSite}</p>
+          <p className="text-gray-400 text-sm">Gestion visuelle des {rooms.length} suites — {currentSite}</p>
         </div>
         <div className="flex gap-4">
           <button onClick={() => setIsModalOpen(true)} className="px-6 py-2 bg-primary text-white rounded-xl text-sm font-bold shadow-lg hover:bg-primary-dk transition-all">
@@ -112,7 +118,7 @@ export default function ReservationsGrid() {
             <thead>
               <tr className="bg-gray-50/50">
                 <th className="p-4 border-r border-gray-100 sticky left-0 bg-gray-50 z-10 w-24 text-left text-[10px] font-bold text-gray-400 uppercase">Chambre</th>
-                {days.map((day, i) => (
+                {days.map((day, i: number) => (
                   <th key={i} className={`p-4 border-r border-gray-100 min-w-[120px] text-center ${day.toDateString() === new Date().toDateString() ? 'bg-accent/5' : ''}`}>
                     <div className="text-[10px] font-bold text-gray-400 uppercase">{day.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
                     <div className={`text-lg font-bold ${day.toDateString() === new Date().toDateString() ? 'text-accent' : 'text-primary'}`}>
@@ -123,15 +129,23 @@ export default function ReservationsGrid() {
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: 11 }).map((_, i) => {
-                const roomNum = (i + 1 < 10 ? '0' + (i + 1) : '' + (i + 1));
+              {loading ? (
+                <tr>
+                  <td colSpan={daysCount + 1} className="p-12 text-center text-gray-400">Chargement du planning...</td>
+                </tr>
+              ) : rooms.length === 0 ? (
+                <tr>
+                  <td colSpan={daysCount + 1} className="p-12 text-center text-gray-400">Aucune chambre trouvée pour ce site.</td>
+                </tr>
+              ) : rooms.map((room) => {
                 return (
-                  <tr key={i} className="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
+                  <tr key={room.id} className="border-b border-gray-50 hover:bg-gray-50/30 transition-colors">
                     <td className="p-4 border-r border-gray-100 sticky left-0 bg-white z-10 font-bold text-primary">
-                      Suite {roomNum}
+                      Suite {room.number}
                     </td>
-                    {days.map((day, j) => {
-                      const res = getOccupancy(roomNum, day);
+                    {days.map((day, j: number) => {
+                      const res = getOccupancy(room.number, day);
+
                       return (
                         <td key={j} className="p-2 border-r border-gray-50 relative h-16">
                           {res && (
@@ -152,6 +166,7 @@ export default function ReservationsGrid() {
           </table>
         </div>
       </div>
+
 
       <div className="flex gap-8">
         <div className="flex items-center gap-2">

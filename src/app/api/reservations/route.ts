@@ -7,17 +7,36 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { 
-      siteName, 
-      roomTypeId, 
       checkIn, 
       checkOut, 
+      siteName, 
       clientName, 
       clientEmail, 
-      guestCount,
       totalPrice 
     } = body;
 
-    // 1. Find or Create User
+    // Resolve site by name
+    const site = await prisma.site.findFirst({
+      where: { name: siteName },
+    });
+
+    if (!site) {
+      return NextResponse.json({ error: 'Site non trouvé' }, { status: 404 });
+    }
+
+    // Find ANY available room in this site
+    const availableRoom = await prisma.room.findFirst({
+      where: {
+        siteId: site.id,
+        status: 'AVAILABLE',
+      },
+    });
+
+    if (!availableRoom) {
+      return NextResponse.json({ error: 'Complet : Aucune chambre disponible pour ce site' }, { status: 400 });
+    }
+
+    // Create or find user (Client)
     let user = await prisma.user.findUnique({
       where: { email: clientEmail },
     });
@@ -27,48 +46,27 @@ export async function POST(req: Request) {
         data: {
           email: clientEmail,
           name: clientName,
-          password: 'password_placeholder', // In a real app, handle auth properly
+          password: 'hambol_guest', // Default password for guest accounts
           role: 'CLIENT',
         },
       });
     }
 
-    // 2. Find an available room of the requested type for the site
-    const site = await prisma.site.findFirst({
-      where: { name: siteName },
-    });
-
-    if (!site) {
-      return NextResponse.json({ error: 'Site not found' }, { status: 400 });
-    }
-
-    const availableRoom = await prisma.room.findFirst({
-      where: {
-        siteId: site.id,
-        roomTypeId: roomTypeId,
-        status: 'AVAILABLE',
-      },
-    });
-
-    if (!availableRoom) {
-      return NextResponse.json({ error: 'No rooms available for these criteria' }, { status: 400 });
-    }
-
-    // 3. Create Reservation
+    // Create reservation
     const reservation = await prisma.reservation.create({
       data: {
         checkIn: new Date(checkIn),
         checkOut: new Date(checkOut),
-        status: 'PENDING',
-        totalPrice: parseFloat(totalPrice),
         roomId: availableRoom.id,
         clientId: user.id,
+        status: 'PENDING',
+        totalPrice: parseFloat(totalPrice.toString()),
       },
     });
 
     return NextResponse.json({ success: true, reservation });
   } catch (error) {
-    console.error('Reservation error:', error);
+    console.error('Create reservation error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

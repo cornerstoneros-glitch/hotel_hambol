@@ -6,13 +6,14 @@ import { useRouter } from 'next/navigation';
 export default function BookingWidget() {
   const router = useRouter();
   const [tab, setTab] = useState<'rooms' | 'food' | 'activities' | 'events'>('rooms');
-  const [date, setDate] = useState('');
+  const [dateTime, setDateTime] = useState('');
   const [guests, setGuests] = useState('1');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (tab === 'rooms') {
-      router.push('/reservations');
+      // Pass the selected arrival time to the reservation page
+      router.push(`/reservations?arrival=${dateTime}&guests=${guests}`);
     } else if (tab === 'food') {
       router.push('/contact?subject=reservation');
     } else if (tab === 'activities') {
@@ -44,40 +45,18 @@ export default function BookingWidget() {
       </div>
       
       <form onSubmit={handleSubmit} className="p-6 md:p-8 flex flex-col md:flex-row gap-6 items-end bg-[#Fdfbf7]">
-        <div className="w-full md:w-1/3">
+        <div className="w-full md:w-1/2">
           <label className="block text-xs font-bold text-[#8B3A1A] uppercase tracking-wider mb-2">
-            {tab === 'rooms' ? 'Arrivée' : 'Date souhaitée'}
+            {tab === 'rooms' ? 'Arrivée (Date & Heure)' : 'Date souhaitée'}
           </label>
           <input 
-            type="date" 
+            type={tab === 'rooms' ? "datetime-local" : "date"}
             required
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A]" 
-            value={date}
-            onChange={e => setDate(e.target.value)}
+            value={dateTime}
+            onChange={e => setDateTime(e.target.value)}
           />
         </div>
-
-        {tab === 'rooms' && (
-          <div className="w-full md:w-1/3">
-            <label className="block text-xs font-bold text-[#8B3A1A] uppercase tracking-wider mb-2">Départ</label>
-            <input 
-              type="date" 
-              required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A]" 
-            />
-          </div>
-        )}
-
-        {(tab === 'food' || tab === 'activities') && (
-          <div className="w-full md:w-1/3">
-            <label className="block text-xs font-bold text-[#8B3A1A] uppercase tracking-wider mb-2">Heure</label>
-            <input 
-              type="time" 
-              required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A]" 
-            />
-          </div>
-        )}
 
         <div className="w-full md:w-1/4">
           <label className="block text-xs font-bold text-[#8B3A1A] uppercase tracking-wider mb-2">Personnes</label>
@@ -93,9 +72,10 @@ export default function BookingWidget() {
         </div>
 
         <button type="submit" className="w-full md:w-auto bg-[#2E7D1E] hover:bg-[#1A4F0A] text-white px-10 py-3 rounded-xl font-bold shadow-xl transition-all">
-          Réserver
+          Vérifier les disponibilités
         </button>  
       </form>
     </div>
   );
 }
+

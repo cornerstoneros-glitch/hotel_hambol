@@ -3,29 +3,35 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const reservations = await prisma.reservation.findMany({
-      include: {
-        room: {
-          include: {
-            site: true,
-            roomType: true,
-          }
-        },
-        client: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    const { searchParams } = new URL(req.url);
+    const siteId = searchParams.get('siteId') || 'azaguie';
 
-    return NextResponse.json({ reservations });
+    const [reservations, rooms] = await Promise.all([
+      prisma.reservation.findMany({
+        where: {
+          room: { siteId }
+        },
+        include: {
+          room: true,
+          client: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.room.findMany({
+        where: { siteId },
+        orderBy: { number: 'asc' }
+      })
+    ]);
+
+    return NextResponse.json({ reservations, rooms });
   } catch (error) {
     console.error('Fetch reservations error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
 
 export async function PATCH(req: Request) {
   try {

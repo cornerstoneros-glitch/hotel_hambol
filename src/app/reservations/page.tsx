@@ -1,30 +1,49 @@
-'use client';
-
 import { useSite } from '@/context/SiteContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
 type Step = 'search' | 'selection' | 'confirmation' | 'success';
 
+interface RoomType {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  capacity: number;
+}
+
 export default function ReservationPage() {
   const { currentSite } = useSite();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('search');
+  
   const [formData, setFormData] = useState({
-    checkIn: '',
+    checkIn: searchParams.get('arrival') || '',
     checkOut: '',
-    guests: '1',
+    guests: searchParams.get('guests') || '1',
     roomTypeId: '',
     clientName: '',
     clientEmail: '',
   });
+
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingTypes, setFetchingTypes] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const roomTypes = [
-    { id: '1', name: 'Chambre Standard', price: 25000, capacity: 2 },
-    { id: '2', name: 'Suite Deluxe', price: 45000, capacity: 2 },
-    { id: '3', name: 'Chambre Familiale', price: 35000, capacity: 4 },
-  ];
+  useEffect(() => {
+    fetch('/api/room-types')
+      .then(res => res.json())
+      .then(data => {
+        setRoomTypes(data.roomTypes || []);
+        setFetchingTypes(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setFetchingTypes(false);
+      });
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +51,30 @@ export default function ReservationPage() {
   };
 
   const handleSelectRoom = (id: string) => {
-    setFormData({ ...formData, roomTypeId: id });
+    const selected = roomTypes.find(r => r.id === id);
+    if (!selected) return;
+
+    // Logic for durations based on name
+    let checkOut = formData.checkOut;
+    const now = formData.checkIn ? new Date(formData.checkIn) : new Date();
+    
+    if (selected.name.includes('Passage')) {
+      const end = new Date(now.getTime() + 1.5 * 60 * 60 * 1000);
+      checkOut = end.toISOString().slice(0, 16);
+    } else if (selected.name.includes('Long Repos')) {
+      const end = new Date(now.getTime() + 10 * 60 * 60 * 1000);
+      checkOut = end.toISOString().slice(0, 16);
+    } else if (selected.name.includes('Nuitée')) {
+      const end = new Date(now);
+      end.setDate(end.getDate() + 1);
+      end.setHours(12, 0, 0, 0);
+      checkOut = end.toISOString().slice(0, 16);
+    } else if (selected.name.includes('Séjour 24h')) {
+      const end = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      checkOut = end.toISOString().slice(0, 16);
+    }
+
+    setFormData({ ...formData, roomTypeId: id, checkOut });
     setStep('confirmation');
   };
 
@@ -51,7 +93,8 @@ export default function ReservationPage() {
         body: JSON.stringify({
           ...formData,
           siteName: currentSite,
-          totalPrice
+          totalPrice,
+          guestCount: parseInt(formData.guests)
         }),
       });
 
@@ -59,7 +102,7 @@ export default function ReservationPage() {
       if (data.success) {
         setStep('success');
       } else {
-        setError(data.error || 'Une erreur est survenue.');
+        setError(data.error || 'Aucune chambre disponible pour ce type sur ce site.');
       }
     } catch (err) {
       setError('Erreur de connexion au serveur.');
@@ -76,7 +119,7 @@ export default function ReservationPage() {
             Réserver votre Séjour
           </h1>
           <p className="text-[#6B5C4E] text-lg">
-            Vivez l'expérience Espace Hambol à <span className="font-bold text-[#2E7D1E]">{currentSite}</span>.
+            Vivez l&apos;expérience Espace Hambol à <span className="font-bold text-[#2E7D1E]">{currentSite}</span>.
           </p>
         </header>
 
@@ -103,9 +146,9 @@ export default function ReservationPage() {
             <form onSubmit={handleSearch} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-bold text-[#8B3A1A] mb-2">Arrivée</label>
+                  <label className="block text-sm font-bold text-[#8B3A1A] mb-2">Arrivée (Date & Heure)</label>
                   <input 
-                    type="date" 
+                    type="datetime-local" 
                     required
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B3A1A] outline-none"
                     value={formData.checkIn}
@@ -113,59 +156,49 @@ export default function ReservationPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-[#8B3A1A] mb-2">Départ</label>
-                  <input 
-                    type="date" 
-                    required
+                  <label className="block text-sm font-bold text-[#8B3A1A] mb-2">Personnes</label>
+                  <select 
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B3A1A] outline-none"
-                    value={formData.checkOut}
-                    onChange={(e) => setFormData({...formData, checkOut: e.target.value})}
-                  />
+                    value={formData.guests}
+                    onChange={(e) => setFormData({...formData, guests: e.target.value})}
+                  >
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4+</option>
+                  </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-[#8B3A1A] mb-2">Nombre de Personnes</label>
-                <select 
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#8B3A1A] outline-none"
-                  value={formData.guests}
-                  onChange={(e) => setFormData({...formData, guests: e.target.value})}
-                >
-                  <option>1</option>
-                  <option>2</option>
-                  <option>3</option>
-                  <option>4+</option>
-                </select>
-              </div>
               <button type="submit" className="w-full bg-[#8B3A1A] hover:bg-[#5C2410] text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-xl active:scale-[0.98]">
-                Vérifier la Disponibilité
+                Vérifier les Formules Disponibles
               </button>
             </form>
           )}
 
           {step === 'selection' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-title font-bold text-[#8B3A1A] mb-4">Choisissez votre type de chambre</h2>
-              <div className="grid grid-cols-1 gap-4">
-                {roomTypes.map((room) => (
-                  <button 
-                    key={room.id}
-                    onClick={() => handleSelectRoom(room.id)}
-                    className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl border-2 border-gray-100 hover:border-[#D4956A] transition-all hover:bg-[#F5EDE044] text-left group"
-                  >
-                    <div className="relative w-full sm:w-40 h-32 rounded-xl overflow-hidden shrink-0">
-                      <Image src="/logo.jpg" alt={room.name} fill className="object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-[#8B3A1A] group-hover:text-[#2E7D1E] transition-colors">{room.name}</h3>
-                      <p className="text-sm text-[#6B5C4E] mt-1">Capacité: {room.capacity} personnes</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-[#8B3A1A]">{room.price.toLocaleString()} FCFA</div>
-                      <div className="text-xs text-gray-500">Par nuit</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <h2 className="text-2xl font-title font-bold text-[#8B3A1A] mb-4">Choisissez votre formule</h2>
+              {fetchingTypes ? (
+                <div className="py-12 text-center text-gray-400">Chargement des tarifs...</div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {roomTypes.map((type) => (
+                    <button 
+                      key={type.id}
+                      onClick={() => handleSelectRoom(type.id)}
+                      className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-2xl border-2 border-gray-100 hover:border-[#D4956A] transition-all hover:bg-[#F5EDE044] text-left group"
+                    >
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-[#8B3A1A] group-hover:text-[#2E7D1E] transition-colors">{type.name}</h3>
+                        <p className="text-sm text-[#6B5C4E] mt-1">{type.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-[#8B3A1A]">{type.price.toLocaleString()} FCFA</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
               <button 
                 onClick={() => setStep('search')}
                 className="text-[#8B3A1A] font-bold hover:underline"
@@ -207,13 +240,17 @@ export default function ReservationPage() {
                   <span>Site:</span><span className="font-bold">{currentSite}</span>
                 </div>
                 <div className="flex justify-between text-sm text-[#6B5C4E]">
-                  <span>Du:</span><span className="font-bold font-mono">{formData.checkIn}</span>
+                  <span>Formule:</span><span className="font-bold text-[#8B3A1A]">{roomTypes.find(r => r.id === formData.roomTypeId)?.name}</span>
                 </div>
-                <div className="flex justify-between text-sm text-[#6B5C4E]">
-                  <span>Au:</span><span className="font-bold font-mono">{formData.checkOut}</span>
-                </div>
-                <div className="flex justify-between text-sm text-[#6B5C4E] mt-2 pt-2 border-t border-[#D4956A]/20">
-                  <span>Chambre:</span><span className="font-bold text-[#8B3A1A]">{roomTypes.find(r => r.id === formData.roomTypeId)?.name}</span>
+                <div className="flex justify-between text-sm text-[#max-w-xs] text-[#6B5C4E] mt-2 pt-2 border-t border-[#D4956A]/20">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase font-bold text-gray-400">Arrivée</span>
+                    <span className="font-bold font-mono">{new Date(formData.checkIn).toLocaleString('fr-FR')}</span>
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-[10px] uppercase font-bold text-gray-400">Départ Prévu</span>
+                    <span className="font-bold font-mono">{new Date(formData.checkOut).toLocaleString('fr-FR')}</span>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -242,16 +279,16 @@ export default function ReservationPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-title font-bold text-[#8B3A1A]">Demande Confirmée !</h2>
-              <p className="text-[#6B5C4E] max-w-md mx-auto">
+              <h2 className="text-3xl font-title text-white font-bold text-[#8B3A1A] bg-[#8B3A1A] inline-block px-6 py-2 rounded-2xl">Demande Confirmée !</h2>
+              <p className="text-[#6B5C4E] max-w-md mx-auto font-medium">
                 Votre demande de réservation pour <span className="font-bold">{currentSite}</span> a été transmise à notre équipe. 
                 Vous recevrez une confirmation par email très prochainement.
               </p>
               <button 
                 onClick={() => window.location.href = '/'}
-                className="inline-block bg-[#8B3A1A] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#5C2410] transition-all"
+                className="inline-block bg-[#8B3A1A] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#5C2410] transition-all shadow-lg"
               >
-                Retour à l'Accueil
+                Retour à l&apos;Accueil
               </button>
             </div>
           )}

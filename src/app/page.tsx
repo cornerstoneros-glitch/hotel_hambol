@@ -149,13 +149,19 @@ export default function Home() {
         ]);
         
         const statsData = await statsRes.json();
-        const siteStats = statsData.sites?.find((s: { siteName: string }) => s.siteName === currentSite);
-        if (siteStats) setOccupancy(siteStats.occupiedRooms);
+        if (statsData.sites) {
+          const siteStats = statsData.sites.find((s: { siteName: string }) => s.siteName === currentSite);
+          if (siteStats) setOccupancy(siteStats.occupiedRooms);
+          else setOccupancy(0); // If site not in stats yet, assume 0 occupancy
+        } else {
+          setOccupancy(0);
+        }
 
         const menuData = await menuRes.json();
-        setDishes(menuData.dishes);
+        setDishes(menuData.dishes || []);
       } catch (e) {
         console.error(e);
+        setOccupancy(0); // Default to 0 on error to avoid stuck "Vérification..."
       }
     };
     fetchData();
@@ -195,10 +201,15 @@ export default function Home() {
                   occupancy >= 8 ? 'bg-orange-500 shadow-orange-500' :
                   'bg-green-500 shadow-green-500'
                 }`} />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
                   {occupancy === null 
-                    ? "Vérification des disponibilités..." 
-                    : occupancy < 11 
+                    ? (
+                      <span className="flex items-center gap-2">
+                         <span className="w-1 h-1 bg-white rounded-full animate-ping" />
+                         Vérification...
+                      </span>
+                    )
+                    : (11 - occupancy) > 0 
                       ? `Disponibilité en Temps Réel : ${11 - occupancy} suites libres` 
                       : "Complet : Prochaines disponibilités sous peu"}
                 </span>

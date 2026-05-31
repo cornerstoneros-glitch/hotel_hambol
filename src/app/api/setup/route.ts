@@ -234,15 +234,37 @@ export async function GET() {
         ('yopougon', 'Yopougon', 'Ananeraie', 'L Élégance Urbaine')
     `);
 
-    // Room Types
-    const rt1 = 'rt-standard'; const rt2 = 'rt-suite'; const rt3 = 'rt-famille';
-    await prisma.$executeRawUnsafe(`
-      INSERT OR IGNORE INTO "RoomType" (id, name, description, price, capacity)
-      VALUES
-        ('${rt1}', 'Chambre Standard', 'Chambre élégante et confortable', 25000, 2),
-        ('${rt2}', 'Suite Deluxe', 'Suite luxueuse avec vue panoramique', 45000, 2),
-        ('${rt3}', 'Chambre Familiale', 'Espace généreux pour toute la famille', 35000, 4)
-    `);
+    // New Tariffs (Room Types) based on Image
+    const tariffs = [
+      { id: 'rt-passage', name: 'Passage 1h30', desc: 'Passage rapide 1h30', price: 10000, cap: 2 },
+      { id: 'rt-longrepos', name: 'Long Repos (10h)', desc: 'Repos prolongé 10h', price: 15000, cap: 2 },
+      { id: 'rt-nuitee', name: 'Nuitée (22h-12h)', desc: '22H au lendemain midi', price: 15000, cap: 2 },
+      { id: 'rt-sejour-20', name: 'Séjour 24h (Standard)', desc: '24H + Petit Déjeuner + Eau', price: 20000, cap: 2 },
+      { id: 'rt-sejour-25', name: 'Séjour 24h (Complet)', desc: '24H + P.Dej (2) + Dej (1)', price: 25000, cap: 2 },
+    ];
+
+    for (const t of tariffs) {
+      await prisma.$executeRawUnsafe(`
+        INSERT OR IGNORE INTO "RoomType" (id, name, description, price, capacity)
+        VALUES ('${t.id}', '${t.name}', '${t.desc}', ${t.price}, ${t.cap})
+      `);
+    }
+
+    // Rooms initialization: 11 rooms per site (Azaguie: 101-111, Yopougon: 201-211)
+    for (let i = 1; i <= 11; i++) {
+      // Azaguie rooms
+      const azNum = 100 + i;
+      await prisma.$executeRawUnsafe(`
+        INSERT OR IGNORE INTO "Room" (id, number, status, siteId, roomTypeId)
+        VALUES ('az-r${azNum}', '${azNum}', 'AVAILABLE', 'azaguie', 'rt-nuitee')
+      `);
+      // Yopougon rooms
+      const yopNum = 200 + i;
+      await prisma.$executeRawUnsafe(`
+        INSERT OR IGNORE INTO "Room" (id, number, status, siteId, roomTypeId)
+        VALUES ('yop-r${yopNum}', '${yopNum}', 'AVAILABLE', 'yopougon', 'rt-nuitee')
+      `);
+    }
 
     // Dishes (Initial Menu)
     await prisma.$executeRawUnsafe(`
@@ -274,7 +296,12 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: '✅ Base de données initiale de production générée avec succès !',
+      message: '✅ Base de données et TARIFS HOTEL initialisés avec succès !',
+      counts: {
+        sites: 2,
+        tariffs: tariffs.length,
+        rooms: 22
+      },
       comptes: {
         superAdmin: { email: 'admin@hambol.com', password: 'hambol2025', role: 'SUPER_ADMIN' },
         direction: { email: 'direction@hambol.com', password: 'hambol2025', role: 'ADMIN' }
