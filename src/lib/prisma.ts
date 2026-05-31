@@ -6,13 +6,25 @@ const prismaClientSingleton = () => {
   const databaseUrl = process.env.DATABASE_URL;
   
   if (!databaseUrl || databaseUrl.startsWith('file:')) {
-    const filename = databaseUrl ? databaseUrl.replace('file:', '') : './dev.db';
+    const filename = databaseUrl ? databaseUrl.replace(/^file:\/?\/?/, '') : './dev.db';
     
-    // In many hosted environments, we need an absolute path
-    // We assume dev.db is in the project root
-    const absolutePath = path.join(/* turbopackIgnore: true */ process.cwd(), filename.startsWith('./') ? filename : `./${filename}`);
+    // Check if the provided path is already absolute (e.g., in Hostinger public_html)
+    // If not, resolve it relative to the process root (nodejs folder)
+    let absolutePath = filename;
     
-    console.log(`[Prisma] Enforcing absolute path: ${absolutePath}`);
+    // Windows paths or Unix absolute paths
+    const isAbsolute = path.isAbsolute(filename) || filename.startsWith('/');
+    
+    if (!isAbsolute) {
+      absolutePath = path.join(/* turbopackIgnore: true */ process.cwd(), filename);
+    } else {
+      // Re-add root slash if it was removed by replace
+      if (!absolutePath.startsWith('/') && !absolutePath.match(/^[a-zA-Z]:\\/)) {
+        absolutePath = '/' + absolutePath;
+      }
+    }
+    
+    console.log(`[Prisma] Enforcing database path: ${absolutePath}`);
     
     return new PrismaClient({
       datasources: {
