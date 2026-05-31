@@ -1,3 +1,5 @@
+'use client';
+
 import { useSite } from '@/context/SiteContext';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';

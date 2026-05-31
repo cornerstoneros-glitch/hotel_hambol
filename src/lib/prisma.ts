@@ -10,7 +10,7 @@ const prismaClientSingleton = () => {
     
     // In many hosted environments, we need an absolute path
     // We assume dev.db is in the project root
-    const absolutePath = path.resolve(process.cwd(), filename.startsWith('./') ? filename : `./${filename}`);
+    const absolutePath = path.join(/* turbopackIgnore: true */ process.cwd(), filename.startsWith('./') ? filename : `./${filename}`);
     
     console.log(`[Prisma] Enforcing absolute path: ${absolutePath}`);
     
