@@ -13,9 +13,17 @@ interface PromoItem {
   intervalMs?: number;
 }
 
+interface SocialItem {
+  id: string;
+  platform: string;
+  url: string;
+  enabled: boolean;
+}
+
 interface SitePromos {
   popup: PromoItem;
   floatingAd: PromoItem;
+  socials?: SocialItem[];
 }
 
 interface PromosData {
@@ -23,7 +31,7 @@ interface PromosData {
   Yopougon: SitePromos;
 }
 
-type TabKey = 'popup' | 'floatingAd';
+type TabKey = 'popup' | 'floatingAd' | 'socials';
 
 const SITES: SiteName[] = ['Azaguié', 'Yopougon'];
 const SITE_COLORS: Record<SiteName, string> = {
@@ -35,10 +43,18 @@ const DEFAULT_DATA: PromosData = {
   Azaguié: {
     popup: { enabled: false, imageUrl: '', link: '', title: '' },
     floatingAd: { enabled: false, imageUrl: '', link: '', title: '', delayMs: 6000, intervalMs: 45000 },
+    socials: [
+      { id: 'fb', platform: 'facebook', url: 'https://www.facebook.com/share/1Hdt2EsaiS/', enabled: true },
+      { id: 'tt', platform: 'tiktok', url: 'https://www.tiktok.com/@commercial.espacehambolg?_r=1&_t=ZS-96vaoWO4Ua4', enabled: true },
+    ]
   },
   Yopougon: {
     popup: { enabled: false, imageUrl: '', link: '', title: '' },
     floatingAd: { enabled: false, imageUrl: '', link: '', title: '', delayMs: 6000, intervalMs: 45000 },
+    socials: [
+      { id: 'fb', platform: 'facebook', url: 'https://www.facebook.com/share/1Hdt2EsaiS/', enabled: true },
+      { id: 'tt', platform: 'tiktok', url: 'https://www.tiktok.com/@commercial.espacehambolg?_r=1&_t=ZS-96vaoWO4Ua4', enabled: true },
+    ]
   },
 };
 
@@ -46,7 +62,7 @@ const DEFAULT_DATA: PromosData = {
 interface SiteCardProps {
   site: SiteName;
   activeTab: TabKey;
-  item: PromoItem;
+  item: any;
   onUpdate: (field: string, value: unknown) => void;
 }
 
@@ -56,7 +72,7 @@ function SiteCard({ site, activeTab, item, onUpdate }: SiteCardProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
-  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -85,6 +101,164 @@ function SiteCard({ site, activeTab, item, onUpdate }: SiteCardProps) {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }, [onUpdate]);
+
+  if (activeTab === 'socials') {
+    const list = (item || []) as SocialItem[];
+
+    const updateSocial = (id: string, key: keyof SocialItem, val: unknown) => {
+      const newList = list.map(s => s.id === id ? { ...s, [key]: val } : s);
+      onUpdate('socials', newList);
+    };
+
+    const deleteSocial = (id: string) => {
+      const newList = list.filter(s => s.id !== id);
+      onUpdate('socials', newList);
+    };
+
+    const addSocial = () => {
+      const newId = 'social-' + Date.now();
+      const newList = [...list, { id: newId, platform: 'facebook', url: '', enabled: true }];
+      onUpdate('socials', newList);
+    };
+
+    return (
+      <div style={{
+        background: '#fff',
+        border: '1.5px solid #E5E7EB',
+        borderRadius: 18,
+        overflow: 'hidden',
+        boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+      }}>
+        {/* Site header */}
+        <div style={{
+          background: SITE_COLORS[site],
+          color: '#fff',
+          padding: '14px 20px',
+        }}>
+          <span style={{ fontWeight: 800, fontSize: 16 }}>
+            {site === 'Azaguié' ? '🌿' : '🏙️'} {site}
+          </span>
+        </div>
+
+        <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>
+            Configurez les réseaux sociaux qui apparaissent dans le module flottant de ce site.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {list.map((social) => (
+              <div 
+                key={social.id} 
+                style={{
+                  border: '1px solid #F3F4F6',
+                  borderRadius: 12,
+                  padding: 14,
+                  background: '#F9FAFB',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <select
+                    value={social.platform.toLowerCase()}
+                    onChange={e => updateSocial(social.id, 'platform', e.target.value)}
+                    style={{
+                      border: '1.5px solid #E5E7EB',
+                      borderRadius: 8,
+                      padding: '5px 10px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      outline: 'none',
+                      background: '#fff',
+                      color: '#1F2937'
+                    }}
+                  >
+                    <option value="facebook">Facebook</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="twitter">Twitter / X</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="autre">Autre / Lien</option>
+                  </select>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                      <span style={{ fontSize: 11, color: '#4B5563' }}>Actif</span>
+                      <input 
+                        type="checkbox"
+                        checked={social.enabled}
+                        onChange={e => updateSocial(social.id, 'enabled', e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => deleteSocial(social.id)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#EF4444',
+                        cursor: 'pointer',
+                        fontWeight: 800,
+                        fontSize: 12,
+                        padding: '2px 6px'
+                      }}
+                      title="Supprimer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={social.url}
+                  onChange={e => updateSocial(social.id, 'url', e.target.value)}
+                  style={{
+                    border: '1.5px solid #E5E7EB',
+                    borderRadius: 8,
+                    padding: '8px 12px',
+                    fontSize: 12,
+                    outline: 'none',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    color: '#1F2937'
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={addSocial}
+            style={{
+              padding: '10px 16px',
+              background: '#F3F4F6',
+              border: '1px dashed #D1D5DB',
+              borderRadius: 10,
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#374151',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              transition: 'background 0.2s'
+            }}
+          >
+            ➕ Ajouter un réseau social
+          </button>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -273,18 +447,45 @@ export default function PromotionsAdmin() {
   useEffect(() => {
     fetch('/api/admin/promotions')
       .then(r => r.json())
-      .then(d => { if (d?.Azaguié) setData(d); })
+      .then(d => { 
+        if (d?.Azaguié) {
+          const merged = {
+            Azaguié: {
+              ...DEFAULT_DATA.Azaguié,
+              ...d.Azaguié,
+              socials: d.Azaguié.socials || DEFAULT_DATA.Azaguié.socials
+            },
+            Yopougon: {
+              ...DEFAULT_DATA.Yopougon,
+              ...d.Yopougon,
+              socials: d.Yopougon.socials || DEFAULT_DATA.Yopougon.socials
+            }
+          };
+          setData(merged);
+        }
+      })
       .catch(console.error);
   }, []);
 
   const handleUpdate = useCallback((site: SiteName, tab: TabKey, field: string, value: unknown) => {
-    setData(prev => ({
-      ...prev,
-      [site]: {
-        ...prev[site],
-        [tab]: { ...prev[site][tab], [field]: value },
-      },
-    }));
+    setData(prev => {
+      if (tab === 'socials') {
+        return {
+          ...prev,
+          [site]: {
+            ...prev[site],
+            socials: value as SocialItem[],
+          }
+        };
+      }
+      return {
+        ...prev,
+        [site]: {
+          ...prev[site],
+          [tab]: { ...prev[site][tab] as any, [field]: value },
+        },
+      };
+    });
   }, []);
 
   const save = async () => {
@@ -305,6 +506,7 @@ export default function PromotionsAdmin() {
   const TAB_LABELS: Record<TabKey, string> = {
     popup: "🪟 Popup d'accueil",
     floatingAd: '📢 Pub flottante',
+    socials: '📱 Réseaux Sociaux',
   };
 
   return (
