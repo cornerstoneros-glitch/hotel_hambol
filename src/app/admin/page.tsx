@@ -27,10 +27,14 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       const res = await fetch('/api/admin/stats');
+      if (!res.ok) {
+        throw new Error('Failed to fetch stats');
+      }
       const data = await res.json();
       setStats(data);
     } catch (err) {
       console.error(err);
+      setStats(null);
     } finally {
       setLoading(false);
     }
@@ -53,7 +57,49 @@ export default function AdminDashboard() {
     );
   }
 
-  const currentSiteStats = stats?.sites.find(s => s.siteName === currentSite);
+  // Check if stats are missing or contain an error response
+  const hasError = !stats || 'error' in stats || !stats.sites || !stats.overall;
+
+  if (hasError) {
+    return (
+      <div className="space-y-10">
+        <header className="flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-title font-bold text-primary">Tableau de Bord</h1>
+            <p className="text-gray-400 text-sm mt-2">Vue d&apos;ensemble de l&apos;Espace Hambol — {currentSite}</p>
+          </div>
+        </header>
+
+        <div className="bg-[#FFF5F5] border border-red-200/50 p-10 rounded-[3rem] space-y-6 max-w-3xl shadow-sm">
+          <div className="flex items-center gap-4 text-red-800">
+            <span className="text-3xl">⚠️</span>
+            <h2 className="text-xl font-bold font-title">Erreur de connexion à la base de données</h2>
+          </div>
+          <p className="text-red-700/80 text-sm leading-relaxed">
+            Les données statistiques en temps réel n&apos;ont pas pu être récupérées. Cela se produit généralement si les tables de la base de données SQLite ne sont pas encore créées ou si le schéma de base de données en production n&apos;est pas à jour.
+          </p>
+          <div className="flex flex-wrap gap-4 pt-2">
+            <a 
+              href="/api/setup?reset=true" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="px-6 py-3 bg-red-600 text-white rounded-2xl text-xs font-bold hover:bg-red-700 transition-all shadow-md hover:shadow-lg"
+            >
+              Initialiser / Réinitialiser la Base de Données
+            </a>
+            <button 
+              onClick={fetchStats} 
+              className="px-6 py-3 bg-white border border-red-200 text-red-700 rounded-2xl text-xs font-bold hover:bg-red-50 transition-all"
+            >
+              Réessayer la connexion
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentSiteStats = stats?.sites?.find(s => s.siteName === currentSite);
 
   return (
     <div className="space-y-10">
@@ -106,7 +152,7 @@ export default function AdminDashboard() {
             <span className="p-1 px-2 bg-amber-100 text-amber-700 rounded text-[10px]">Alerte</span>
           </div>
           <div className="flex items-end gap-3">
-            <span className="text-5xl font-bold text-primary">{stats?.overall.pendingReservations || 0}</span>
+            <span className="text-5xl font-bold text-primary">{stats?.overall?.pendingReservations || 0}</span>
             <span className="text-sm text-gray-400 mb-2">Demandes</span>
           </div>
           <button className="text-accent text-xs font-bold underline">Traiter maintenant</button>

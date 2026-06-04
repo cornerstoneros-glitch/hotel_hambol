@@ -35,26 +35,26 @@ const POSITION_LABELS: Record<string, string> = {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { currentSite, setCurrentSite } = useSite();
-  const { logout, user, isAuthenticated } = useAuth();
+  const { logout, user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   // ── Protection des accès Admin ──────────────────────────────────────
   useEffect(() => {
-    // Si on a fini de charger le user (isAuthenticated est prêt)
+    if (isLoading) return;
+
     if (isAuthenticated) {
       if (user?.role === 'CLIENT') {
         router.replace('/'); // Les clients n'ont rien à faire ici
       }
     } else {
-      // Optionnel: on peut attendre un peu ou rediriger direct vers login
-      // router.replace('/login'); 
+      router.replace('/auth/admin'); 
     }
-  }, [user, isAuthenticated, router]);
+  }, [user, isAuthenticated, isLoading, router]);
 
   // Pendant le chargement initial ou si non autorisé, on peut afficher un loader ou rien
-  if (!user || user.role === 'CLIENT') {
+  if (isLoading || !user || user.role === 'CLIENT') {
     return (
       <div className="flex h-screen items-center justify-center bg-[#F8F9FA]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
@@ -8,8 +8,30 @@ import path from 'path';
  * Visit /api/setup once to initialize the database on the production server.
  * After running, the database will be fully seeded and ready to use.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const reset = request.nextUrl.searchParams.get('reset') === 'true';
+    if (reset) {
+      // Drop all tables in reverse order of foreign key constraints
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "DishComponent"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Dish"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "InventoryItem"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Service"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Staff"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Review"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "ConciergeRequest"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "GuestPreferences"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "KycData"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Reservation"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Room"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Transaction"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "LoyaltyProgram"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "User"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "RoomType"`);
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS "Site"`);
+      console.log('[Setup] Database reset: all tables dropped.');
+    }
+
     // 1. Automatically create database directory if it does not exist
     const dbUrl = process.env.DATABASE_URL || '';
     if (dbUrl.startsWith('file:')) {
@@ -221,6 +243,17 @@ export async function GET() {
         "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("siteId") REFERENCES "Site"("id")
+      )
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "DishComponent" (
+        "id" TEXT NOT NULL PRIMARY KEY,
+        "name" TEXT NOT NULL,
+        "type" TEXT NOT NULL,
+        "optional" BOOLEAN NOT NULL DEFAULT 0,
+        "dishId" TEXT NOT NULL,
+        FOREIGN KEY ("dishId") REFERENCES "Dish"("id") ON DELETE CASCADE
       )
     `);
 
