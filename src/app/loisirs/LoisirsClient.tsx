@@ -4,11 +4,19 @@ import { useSite } from "@/context/SiteContext";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function LoisirsClient() {
   const { currentSite } = useSite();
-  const [activeTab, setActiveTab] = useState('pool'); // pool, sports, kids, relax
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('pool');
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    if (currentSite === 'Yopougon') {
+      router.replace('/');
+    }
+  }, [currentSite, router]);
 
   const heroSlides = {
     'Azaguié': ["/images/azaguie/outdoor_slide_1.jpg", "/images/azaguie/outdoor_slide_2.jpg", "/images/azaguie/outdoor_slide_3.jpg"],

@@ -320,7 +320,7 @@ function ServicesShowcaseSection() {
         subtitle: "Service Express RDC",
         description: "Confiez votre véhicule à nos techniciens au rez-de-chaussée pour un lavage et vidange complet pendant vos moments de détente.",
         image: "/images/yopougon/services/yop_service_4.jpeg",
-        link: "/loisirs",
+        link: "/contact?subject=other",
         btnText: "Nos formules"
       }
     ]
@@ -710,12 +710,13 @@ export default function HomeClient() {
       {/* Domain: Showcase des Services d'Exception (disponible sur les deux sites) */}
       <ServicesShowcaseSection />
 
-      {/* Domain: Loisirs & Activités */}
+      {/* Domain: Loisirs & Activités - uniquement Azaguié */}
+      {currentSite === 'Azaguié' && (
       <section id="loisirs" className="py-32 px-6 reveal">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-start">
             <div className="sticky top-32 space-y-6">
-              <h2 className="font-body text-accent font-bold tracking-widest uppercase text-xs">Expériences & Loisirs</h2>
+              <h2 className="font-body text-accent font-bold tracking-widest uppercase text-xs">Expériences &amp; Loisirs</h2>
               <h3 className="font-title text-5xl font-bold text-primary">Redécouvrez la Liberté</h3>
               <p className="text-[#6B5C4E] text-lg">
                 Qu&apos;il s&apos;agisse d&apos;un moment de détente au bord de l&apos;eau ou d&apos;une aventure immersive, nous avons conçu chaque activité pour marquer vos esprits.
@@ -735,6 +736,7 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Domain: L'Engagement d'Excellence */}
       <section className="py-24 bg-white reveal">
@@ -916,7 +918,7 @@ export default function HomeClient() {
             <ul className="space-y-4 text-sm">
               <li><Link href="/chambres" className="hover:text-accent">Hébergement</Link></li>
               <li><Link href="/restaurant" className="hover:text-accent">Gastronomie</Link></li>
-              <li><Link href="/loisirs" className="hover:text-accent">Loisirs</Link></li>
+              {currentSite !== 'Yopougon' && <li><Link href="/loisirs" className="hover:text-accent">Loisirs</Link></li>}
             </ul>
           </div>
           <div className="space-y-6 text-center md:text-right">

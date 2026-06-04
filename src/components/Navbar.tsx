@@ -5,10 +5,12 @@ import Link from "next/link";
 import SiteSwitcher from "./SiteSwitcher";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useSite } from "@/context/SiteContext";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { user, logout, isAuthenticated } = useAuth();
+  const { currentSite } = useSite();
 
   // Hide navbar inside dashboards and auth pages
   const isDashboard = pathname.startsWith('/admin') || pathname.startsWith('/client') || pathname.startsWith('/auth');
@@ -18,7 +20,7 @@ export default function Navbar() {
     { name: "Accueil", href: "/" },
     { name: "Hébergement", href: "/chambres" },
     { name: "Restaurant", href: "/restaurant" },
-    { name: "Loisirs", href: "/loisirs" },
+    ...(currentSite !== 'Yopougon' ? [{ name: "Loisirs", href: "/loisirs" }] : []),
     { name: "Contact", href: "/contact" },
   ];
 
