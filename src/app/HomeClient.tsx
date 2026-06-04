@@ -258,44 +258,44 @@ function ServicesShowcaseSection() {
   const servicesData = {
     'Azaguié': [
       {
-        title: "L'Hébergement Nature",
-        subtitle: "Bungalows & Chambres VIP",
-        description: "Des chambres et bungalows climatisés mariant charme rustique et confort moderne au cœur d'Azaguié Ahoua.",
-        image: "/images/azaguie/services/aza_service_1.jpeg",
-        link: "/chambres",
-        btnText: "Voir les tarifs"
-      },
-      {
         title: "Le Complexe Aquatique",
         subtitle: "Piscine & Espace Détente",
         description: "Une grande piscine entourée de verdure avec lits balinais pour vos journées de farniente ou vos fêtes de famille.",
-        image: "/images/azaguie/services/aza_service_2.jpeg",
+        image: "/images/azaguie/services/aza_service_1.jpeg",
         link: "/loisirs",
         btnText: "Activités aquatiques"
       },
       {
-        title: "Défis & Sport",
-        subtitle: "Terrain de Maracana",
-        description: "Un terrain de football aux normes locales idéal pour vos tournois amicaux, sorties de cohésion et teambuildings.",
+        title: "L'Hébergement Nature",
+        subtitle: "Bungalows & Chambres",
+        description: "Des chambres et bungalows climatisés mariant charme rustique et confort moderne au cœur d'Azaguié Ahoua.",
+        image: "/images/azaguie/services/aza_service_2.jpeg",
+        link: "/chambres",
+        btnText: "Voir les tarifs"
+      },
+      {
+        title: "Espace Détente & Lac",
+        subtitle: "Détente au bord de l'eau",
+        description: "Un étang naturel paisible entouré de bungalows pour vous ressourcer en pleine nature.",
         image: "/images/azaguie/services/aza_service_3.jpeg",
         link: "/loisirs",
-        btnText: "Réserver le terrain"
+        btnText: "Nos espaces"
       },
       {
-        title: "Gastronomie de Terroir",
-        subtitle: "Restaurant Plein Air",
-        description: "Poissons braisés et spécialités culinaires ivoiriennes préparées à la minute par notre équipe passionnée.",
+        title: "Baignade Sécurisée",
+        subtitle: "Sécurité & Fun",
+        description: "Piscine surveillée avec gilets de sauvetage disponibles pour le plaisir de toute la famille.",
         image: "/images/azaguie/services/aza_service_4.jpeg",
-        link: "/restaurant",
-        btnText: "Consulter la carte"
+        link: "/loisirs",
+        btnText: "Découvrir la piscine"
       },
       {
-        title: "Célébrations & Concerts",
-        subtitle: "Grands hangars & Jardins",
-        description: "Le lieu parfait pour accueillir vos mariages, fêtes religieuses et concerts en plein air sous les étoiles.",
+        title: "Loisirs en Plein Air",
+        subtitle: "Détente aquatique",
+        description: "Profitez d'un cadre exceptionnel au bord de l'eau pour vous évader du stress urbain.",
         image: "/images/azaguie/services/aza_service_5.jpeg",
-        link: "/contact?subject=event",
-        btnText: "Demander un devis"
+        link: "/loisirs",
+        btnText: "Voir les activités"
       }
     ],
     'Yopougon': [
@@ -308,36 +308,36 @@ function ServicesShowcaseSection() {
         btnText: "Découvrir les suites"
       },
       {
+        title: "Événements sur Mesure",
+        subtitle: "Salle Irène Touré",
+        description: "Une salle de réception moderne entièrement décorée et climatisée pour vos mariages, afterworks et réunions.",
+        image: "/images/yopougon/services/yop_service_2.jpeg",
+        link: "/contact?subject=event",
+        btnText: "Réserver la salle"
+      },
+      {
+        title: "Gastronomie Fine",
+        subtitle: "Menu & Grillades",
+        description: "Savourez nos poissons braisés, kédjénous et plats traditionnels cuisinés par nos chefs experts.",
+        image: "/images/yopougon/services/yop_service_3.jpeg",
+        link: "/restaurant",
+        btnText: "Consulter la carte"
+      },
+      {
         title: "Le Bar VIP & Lounge",
         subtitle: "Détente feutrée",
-        description: "Un cadre climatisé chic pour vos afterworks, soirées d'affaires ou cocktails entre amis à Ananeraie.",
-        image: "/images/yopougon/services/yop_service_2.jpeg",
+        description: "Un cadre climatisé élégant pour savourer de délicieux cocktails signatures et boissons fines.",
+        image: "/images/yopougon/services/yop_service_4.jpeg",
         link: "/restaurant?tab=drinks",
         btnText: "Carte des boissons"
       },
       {
-        title: "Le Rooftop Panoramique",
-        subtitle: "Terrasse 4ème Étage",
-        description: "Prenez de la hauteur et profitez d'une brise agréable avec une vue imprenable sur Yopougon.",
-        image: "/images/yopougon/services/yop_service_3.jpeg",
-        link: "/loisirs",
-        btnText: "Découvrir la terrasse"
-      },
-      {
         title: "Lavage Auto Pro",
         subtitle: "Service Express RDC",
-        description: "Faites briller votre véhicule par nos professionnels pendant que vous profitez du bar ou de votre chambre.",
-        image: "/images/yopougon/services/yop_service_4.jpeg",
+        description: "Un service de lavage et vidange professionnel au rez-de-chaussée pour votre véhicule pendant votre séjour.",
+        image: "/images/yopougon/services/yop_service_5.jpeg",
         link: "/loisirs",
         btnText: "Nos formules"
-      },
-      {
-        title: "Événements sur Mesure",
-        subtitle: "Salle Irène Touré",
-        description: "Une salle de réception moderne entièrement climatisée et modulable pour vos anniversaires, afterworks et réunions.",
-        image: "/images/yopougon/services/yop_service_5.jpeg",
-        link: "/contact?subject=event",
-        btnText: "Réserver la salle"
       }
     ]
   };
