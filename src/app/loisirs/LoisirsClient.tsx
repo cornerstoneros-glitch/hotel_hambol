@@ -26,9 +26,9 @@ export default function LoisirsClient() {
 
   const leisureData = {
     'pool': [
-      { name: 'Piscine Adulte (Grand Bain)', price: '2000 F / adulte', category: 'Aqua', site: 'all', img: '/images/azaguie/outdoor_slide_1.jpg' },
-      { name: 'Piscine Enfant', price: '3000 F / enfant', category: 'Aqua', site: 'all', img: '/images/azaguie/outdoor_slide_2.jpg' },
-      { name: 'Bar VIP Immergé', price: 'Accès Libre', category: 'Aqua', site: 'all', img: '/images/azaguie/outdoor_slide_3.jpg' },
+      { name: 'Piscine Adulte (Grand Bain)', price: '2000 F / adulte', category: 'Aqua', site: 'Azaguié', img: '/images/azaguie/outdoor_slide_1.jpg' },
+      { name: 'Piscine Enfant', price: '3000 F / enfant', category: 'Aqua', site: 'Azaguié', img: '/images/azaguie/outdoor_slide_2.jpg' },
+      { name: 'Bar VIP Immergé', price: 'Accès Libre', category: 'Aqua', site: 'Azaguié', img: '/images/azaguie/outdoor_slide_3.jpg' },
     ],
     'sports': [
       { name: 'Maracana (Football)', price: '15000 F / heure', category: 'Sport', site: 'all', img: '/images/azaguie/outdoor_1.jpg' },
