@@ -34,7 +34,7 @@ export async function POST(request: Request) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Espace Hambol <contact@espacehambol.com>',
+          from: `Espace Hambol <${process.env.MAIL_FROM || 'commercial@espacehambol.com'}>`,
           to: [recipientEmail],
           reply_to: email,
           subject: `[${site}] ${subjectLabels[subject] || subject} — ${name}`,
