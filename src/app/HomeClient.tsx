@@ -462,12 +462,24 @@ function NewsletterSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      console.log('[Newsletter] HTTP status:', res.status);
+      const text = await res.text();
+      console.log('[Newsletter] Response body:', text);
+      let data: { success: boolean; error?: string };
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error('[Newsletter] Non-JSON response:', text);
+        setStatus('error');
+        return;
+      }
       setStatus(data.success ? 'success' : 'error');
-    } catch {
+    } catch (err) {
+      console.error('[Newsletter] fetch error:', err);
       setStatus('error');
     }
   };
+
 
   return (
     <section className="py-32 bg-[#1A1208] text-white relative overflow-hidden">
