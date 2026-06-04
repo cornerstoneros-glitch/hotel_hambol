@@ -20,43 +20,38 @@ export async function POST(request: Request) {
     );
   }
 
+  const trimmedEmail = email.trim();
+
+  // Toujours confirmer l'inscription à l'utilisateur immédiatement
+  // Resend est appelé en "fire and forget" – ses erreurs ne bloquent pas l'UX
   const resendApiKey = process.env.RESEND_API_KEY;
   const audienceId = process.env.RESEND_AUDIENCE_ID;
 
-  // Si Resend n'est pas configuré, on accepte quand même (mode dev / sans config)
-  if (!resendApiKey || !audienceId) {
-    console.log('[Newsletter] Inscription acceptée (Resend non configuré) :', email.trim());
-    return NextResponse.json({ success: true });
-  }
-
-  try {
-    const res = await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
+  if (resendApiKey && audienceId) {
+    // Appel Resend non-bloquant : on n'attend pas le résultat pour répondre
+    fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        email: email.trim(),
-        unsubscribed: false,
-      }),
-    });
-
-    if (!res.ok) {
-      const errBody = await res.text();
-      console.error('[Newsletter API] Resend error:', res.status, errBody);
-      return NextResponse.json(
-        { success: false, error: "Erreur lors de l'inscription." },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('[Newsletter API] fetch error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Erreur de connexion au service email.' },
-      { status: 500 }
-    );
+      body: JSON.stringify({ email: trimmedEmail, unsubscribed: false }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.text();
+          console.error('[Newsletter] Resend error:', res.status, body);
+        } else {
+          console.log('[Newsletter] Resend: contact ajouté —', trimmedEmail);
+        }
+      })
+      .catch((err) => {
+        console.error('[Newsletter] Resend fetch error:', err);
+      });
+  } else {
+    console.log('[Newsletter] Inscription enregistrée (Resend non configuré) :', trimmedEmail);
   }
+
+  // Réponse immédiate au client — indépendante du résultat Resend
+  return NextResponse.json({ success: true });
 }
