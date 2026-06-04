@@ -258,84 +258,68 @@ function ServicesShowcaseSection() {
   const servicesData = {
     'Azaguié': [
       {
-        title: "Le Complexe Aquatique",
-        subtitle: "Piscine & Espace Détente",
-        description: "Une grande piscine entourée de verdure avec lits balinais pour vos journées de farniente ou vos fêtes de famille.",
-        image: "/images/azaguie/services/aza_service_1.jpeg",
+        title: "L'Évasion Nature",
+        subtitle: "Cadre & Bungalows",
+        description: "Découvrez un cadre verdoyant et paisible au cœur d'Azaguié Ahoua, idéal pour vous ressourcer en pleine nature ou organiser des séjours inoubliables.",
+        image: "/images/azaguie/services/aza_service_1.png",
         link: "/loisirs",
-        btnText: "Activités aquatiques"
+        btnText: "Explorer le domaine"
       },
       {
-        title: "L'Hébergement Nature",
-        subtitle: "Bungalows & Chambres",
-        description: "Des chambres et bungalows climatisés mariant charme rustique et confort moderne au cœur d'Azaguié Ahoua.",
+        title: "Espace Détente & Bambous",
+        subtitle: "Relaxation ombragée",
+        description: "Installez-vous confortablement à l'ombre de nos bambous géants pour un moment de relaxation unique et reposant.",
         image: "/images/azaguie/services/aza_service_2.jpeg",
-        link: "/chambres",
-        btnText: "Voir les tarifs"
-      },
-      {
-        title: "Espace Détente & Lac",
-        subtitle: "Détente au bord de l'eau",
-        description: "Un étang naturel paisible entouré de bungalows pour vous ressourcer en pleine nature.",
-        image: "/images/azaguie/services/aza_service_3.jpeg",
         link: "/loisirs",
-        btnText: "Nos espaces"
+        btnText: "Nos espaces détente"
       },
       {
-        title: "Baignade Sécurisée",
-        subtitle: "Sécurité & Fun",
-        description: "Piscine surveillée avec gilets de sauvetage disponibles pour le plaisir de toute la famille.",
-        image: "/images/azaguie/services/aza_service_4.jpeg",
+        title: "Le Complexe Aquatique",
+        subtitle: "Piscine Familiale",
+        description: "Profitez de notre grande piscine sécurisée pour vous rafraîchir en toute tranquillité et partager des moments complices sous le soleil.",
+        image: "/images/azaguie/services/aza_service_3.jpeg",
         link: "/loisirs",
         btnText: "Découvrir la piscine"
       },
       {
-        title: "Loisirs en Plein Air",
-        subtitle: "Détente aquatique",
-        description: "Profitez d'un cadre exceptionnel au bord de l'eau pour vous évader du stress urbain.",
-        image: "/images/azaguie/services/aza_service_5.jpeg",
-        link: "/loisirs",
-        btnText: "Voir les activités"
+        title: "Restauration en Plein Air",
+        subtitle: "Spécialités de Terroir",
+        description: "Savourez nos poissons et carpes braisés ainsi que d'autres grillades traditionnelles servis directement dans nos jardins sous les bambous.",
+        image: "/images/azaguie/services/aza_service_4.jpeg",
+        link: "/restaurant",
+        btnText: "Consulter la carte"
       }
     ],
     'Yopougon': [
       {
-        title: "Suites VIP & Prestige",
-        subtitle: "Confort Haut de Gamme",
-        description: "Des suites élégantes et spacieuses dotées de literie premium, climatisation, room service et balcons privés.",
+        title: "Événements & Mariages",
+        subtitle: "Espace Cérémonie VIP",
+        description: "Organisez vos réceptions, mariages et afterworks de prestige sous notre grand chapiteau entièrement décoré pour éblouir vos convives.",
         image: "/images/yopougon/services/yop_service_1.jpeg",
-        link: "/chambres",
-        btnText: "Découvrir les suites"
-      },
-      {
-        title: "Événements sur Mesure",
-        subtitle: "Salle Irène Touré",
-        description: "Une salle de réception moderne entièrement décorée et climatisée pour vos mariages, afterworks et réunions.",
-        image: "/images/yopougon/services/yop_service_2.jpeg",
         link: "/contact?subject=event",
-        btnText: "Réserver la salle"
+        btnText: "Demander un devis"
       },
       {
         title: "Gastronomie Fine",
-        subtitle: "Menu & Grillades",
-        description: "Savourez nos poissons braisés, kédjénous et plats traditionnels cuisinés par nos chefs experts.",
-        image: "/images/yopougon/services/yop_service_3.jpeg",
+        subtitle: "Spécialités & Grillades",
+        description: "Dégustez nos spécialités culinaires ivoiriennes, dont nos carpes braisées renommées, préparées avec art par notre brigade de cuisine.",
+        image: "/images/yopougon/services/yop_service_2.jpeg",
         link: "/restaurant",
         btnText: "Consulter la carte"
       },
       {
         title: "Le Bar VIP & Lounge",
-        subtitle: "Détente feutrée",
-        description: "Un cadre climatisé élégant pour savourer de délicieux cocktails signatures et boissons fines.",
-        image: "/images/yopougon/services/yop_service_4.jpeg",
+        subtitle: "Détente Climatisée",
+        description: "Installez-vous dans notre bar climatisé feutré pour vos rendez-vous d'affaires ou afterworks autour de spiritueux fins et cocktails signatures.",
+        image: "/images/yopougon/services/yop_service_3.jpeg",
         link: "/restaurant?tab=drinks",
         btnText: "Carte des boissons"
       },
       {
         title: "Lavage Auto Pro",
         subtitle: "Service Express RDC",
-        description: "Un service de lavage et vidange professionnel au rez-de-chaussée pour votre véhicule pendant votre séjour.",
-        image: "/images/yopougon/services/yop_service_5.jpeg",
+        description: "Confiez votre véhicule à nos techniciens au rez-de-chaussée pour un lavage et vidange complet pendant vos moments de détente.",
+        image: "/images/yopougon/services/yop_service_4.jpeg",
         link: "/loisirs",
         btnText: "Nos formules"
       }
