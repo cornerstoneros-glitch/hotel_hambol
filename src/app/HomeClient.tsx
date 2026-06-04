@@ -251,6 +251,219 @@ function BarPromoSection() {
   );
 }
 
+function ServicesShowcaseSection() {
+  const { currentSite } = useSite();
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const servicesData = {
+    'Azaguié': [
+      {
+        title: "L'Hébergement Nature",
+        subtitle: "Bungalows & Chambres VIP",
+        description: "Des chambres et bungalows climatisés mariant charme rustique et confort moderne au cœur d'Azaguié Ahoua.",
+        image: "/images/azaguie/services/aza_service_1.jpeg",
+        link: "/chambres",
+        btnText: "Voir les tarifs"
+      },
+      {
+        title: "Le Complexe Aquatique",
+        subtitle: "Piscine & Espace Détente",
+        description: "Une grande piscine entourée de verdure avec lits balinais pour vos journées de farniente ou vos fêtes de famille.",
+        image: "/images/azaguie/services/aza_service_2.jpeg",
+        link: "/loisirs",
+        btnText: "Activités aquatiques"
+      },
+      {
+        title: "Défis & Sport",
+        subtitle: "Terrain de Maracana",
+        description: "Un terrain de football aux normes locales idéal pour vos tournois amicaux, sorties de cohésion et teambuildings.",
+        image: "/images/azaguie/services/aza_service_3.jpeg",
+        link: "/loisirs",
+        btnText: "Réserver le terrain"
+      },
+      {
+        title: "Gastronomie de Terroir",
+        subtitle: "Restaurant Plein Air",
+        description: "Poissons braisés et spécialités culinaires ivoiriennes préparées à la minute par notre équipe passionnée.",
+        image: "/images/azaguie/services/aza_service_4.jpeg",
+        link: "/restaurant",
+        btnText: "Consulter la carte"
+      },
+      {
+        title: "Célébrations & Concerts",
+        subtitle: "Grands hangars & Jardins",
+        description: "Le lieu parfait pour accueillir vos mariages, fêtes religieuses et concerts en plein air sous les étoiles.",
+        image: "/images/azaguie/services/aza_service_5.jpeg",
+        link: "/contact?subject=event",
+        btnText: "Demander un devis"
+      }
+    ],
+    'Yopougon': [
+      {
+        title: "Suites VIP & Prestige",
+        subtitle: "Confort Haut de Gamme",
+        description: "Des suites élégantes et spacieuses dotées de literie premium, climatisation, room service et balcons privés.",
+        image: "/images/yopougon/services/yop_service_1.jpeg",
+        link: "/chambres",
+        btnText: "Découvrir les suites"
+      },
+      {
+        title: "Le Bar VIP & Lounge",
+        subtitle: "Détente feutrée",
+        description: "Un cadre climatisé chic pour vos afterworks, soirées d'affaires ou cocktails entre amis à Ananeraie.",
+        image: "/images/yopougon/services/yop_service_2.jpeg",
+        link: "/restaurant?tab=drinks",
+        btnText: "Carte des boissons"
+      },
+      {
+        title: "Le Rooftop Panoramique",
+        subtitle: "Terrasse 4ème Étage",
+        description: "Prenez de la hauteur et profitez d'une brise agréable avec une vue imprenable sur Yopougon.",
+        image: "/images/yopougon/services/yop_service_3.jpeg",
+        link: "/loisirs",
+        btnText: "Découvrir la terrasse"
+      },
+      {
+        title: "Lavage Auto Pro",
+        subtitle: "Service Express RDC",
+        description: "Faites briller votre véhicule par nos professionnels pendant que vous profitez du bar ou de votre chambre.",
+        image: "/images/yopougon/services/yop_service_4.jpeg",
+        link: "/loisirs",
+        btnText: "Nos formules"
+      },
+      {
+        title: "Événements sur Mesure",
+        subtitle: "Salle Irène Touré",
+        description: "Une salle de réception moderne entièrement climatisée et modulable pour vos anniversaires, afterworks et réunions.",
+        image: "/images/yopougon/services/yop_service_5.jpeg",
+        link: "/contact?subject=event",
+        btnText: "Réserver la salle"
+      }
+    ]
+  };
+
+  const currentServices = servicesData[currentSite as keyof typeof servicesData] || servicesData['Yopougon'];
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [currentSite]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % currentServices.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [currentServices.length]);
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + currentServices.length) % currentServices.length);
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % currentServices.length);
+  };
+
+  return (
+    <section className="py-28 bg-[#FAF6F0] relative overflow-hidden reveal">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16 space-y-4">
+          <span className="font-body text-accent font-bold tracking-widest uppercase text-xs">Exclusivités & Services</span>
+          <h2 className="font-title text-5xl sm:text-6xl font-bold text-primary leading-tight">Nos Prestations d&apos;Exception</h2>
+          <p className="max-w-xl mx-auto text-foreground/60 text-base">
+            Découvrez les services haut de gamme spécialement conçus pour votre bien-être sur le domaine de {currentSite}.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-5 space-y-8 order-2 lg:order-1">
+            <div className="space-y-4">
+              {currentServices.map((service, index) => (
+                <button
+                  key={service.title}
+                  onClick={() => setActiveIndex(index)}
+                  className={`w-full text-left p-6 rounded-2xl border transition-all duration-300 flex items-start gap-4 ${
+                    index === activeIndex
+                      ? 'bg-white border-[#D4956A] shadow-xl translate-x-2'
+                      : 'bg-transparent border-transparent hover:bg-white/50'
+                  }`}
+                >
+                  <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
+                    index === activeIndex ? 'bg-[#8B3A1A] text-white' : 'bg-sand text-primary'
+                  }`}>
+                    {index + 1}
+                  </span>
+                  <div>
+                    <h4 className="font-title text-xl font-bold text-primary">{service.title}</h4>
+                    <p className="text-xs text-accent font-bold uppercase tracking-wider mb-2">{service.subtitle}</p>
+                    {index === activeIndex && (
+                      <p className="text-sm text-foreground/75 leading-relaxed mt-2 animate-fade-in">
+                        {service.description}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="pt-4 flex items-center justify-between">
+              <Link
+                href={currentServices[activeIndex].link}
+                className="bg-primary hover:bg-primary-dk text-white px-8 py-4 rounded-full font-bold text-sm transition-all shadow-lg hover:scale-105"
+              >
+                {currentServices[activeIndex].btnText}
+              </Link>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePrev}
+                  className="w-10 h-10 rounded-full border border-primary/20 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
+                  aria-label="Service précédent"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="w-10 h-10 rounded-full border border-primary/20 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
+                  aria-label="Service suivant"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 order-1 lg:order-2 w-full relative h-[400px] sm:h-[500px] rounded-[3rem] overflow-hidden shadow-2xl border border-primary/5">
+            {currentServices.map((service, index) => (
+              <div
+                key={service.image}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  index === activeIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                }`}
+              >
+                <Image
+                  src={service.image}
+                  alt={service.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority={index === 0}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent pointer-events-none" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute top-0 left-0 w-84 h-84 bg-accent/5 rounded-full blur-[100px] -ml-40 -mt-40 pointer-events-none" />
+    </section>
+  );
+}
+
 export default function HomeClient() {
   const { currentSite } = useSite();
 
@@ -509,6 +722,9 @@ export default function HomeClient() {
 
       {/* Domain: Bar Yopougon Promotion (uniquement pour Yopougon) */}
       {currentSite === 'Yopougon' && <BarPromoSection />}
+
+      {/* Domain: Showcase des Services d'Exception (disponible sur les deux sites) */}
+      <ServicesShowcaseSection />
 
       {/* Domain: Loisirs & Activités */}
       <section id="loisirs" className="py-32 px-6 reveal">
