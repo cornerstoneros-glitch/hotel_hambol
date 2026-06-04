@@ -1,12 +1,16 @@
 'use client';
 
 import { useSite } from "@/context/SiteContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import Image from "next/image";
 
-export default function ContactClient() {
+function ContactForm() {
   const { currentSite } = useSite();
-  const [formStatus, setFormStatus] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const contactInfo = {
     'Azaguié': {
@@ -26,15 +30,41 @@ export default function ContactClient() {
   };
 
   const currentInfo = contactInfo[currentSite as keyof typeof contactInfo];
+  const defaultSubject = searchParams.get('subject') || '';
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormStatus('success');
-    setTimeout(() => {
-      setFormStatus(null);
-      // Reset form
-      (e.target as HTMLFormElement).reset();
-    }, 4000);
+    setFormStatus('loading');
+    setErrorMsg(null);
+
+    const form = e.currentTarget;
+    const data = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      email: (form.elements.namedItem('email') as HTMLInputElement).value,
+      subject: (form.elements.namedItem('subject') as HTMLSelectElement).value,
+      message: (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+      site: currentSite,
+    };
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setFormStatus('success');
+        form.reset();
+        setTimeout(() => setFormStatus('idle'), 5000);
+      } else {
+        setErrorMsg(result.error || 'Une erreur est survenue.');
+        setFormStatus('error');
+      }
+    } catch {
+      setErrorMsg('Erreur de connexion. Veuillez réessayer.');
+      setFormStatus('error');
+    }
   };
 
   return (
@@ -123,17 +153,22 @@ export default function ContactClient() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {formStatus === 'error' && errorMsg && (
+                  <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm font-bold border border-red-100">
+                    {errorMsg}
+                  </div>
+                )}
                 <div>
                   <label htmlFor="name" className="block font-bold text-sm text-[#1A1208] mb-2">Nom Complet</label>
-                  <input type="text" id="name" required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors" placeholder="Jean-Luc Dupont" />
+                  <input type="text" id="name" name="name" required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors" placeholder="Jean-Luc Dupont" />
                 </div>
                 <div>
                   <label htmlFor="email" className="block font-bold text-sm text-[#1A1208] mb-2">Adresse Email</label>
-                  <input type="email" id="email" required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors" placeholder="jean.luc@exemple.com" />
+                  <input type="email" id="email" name="email" required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors" placeholder="jean.luc@exemple.com" />
                 </div>
                 <div>
                   <label htmlFor="subject" className="block font-bold text-sm text-[#1A1208] mb-2">Objet</label>
-                  <select id="subject" required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors">
+                  <select id="subject" name="subject" required defaultValue={defaultSubject} className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors">
                     <option value="">Sélectionnez un sujet</option>
                     <option value="reservation">Demande de Réservation</option>
                     <option value="event">Organisation d&apos;Événement</option>
@@ -143,13 +178,29 @@ export default function ContactClient() {
                 </div>
                 <div>
                   <label htmlFor="message" className="block font-bold text-sm text-[#1A1208] mb-2">Votre Message</label>
-                  <textarea id="message" rows={5} required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors" placeholder="Comment pouvons-nous vous aider ?"></textarea>
+                  <textarea id="message" name="message" rows={5} required className="w-full bg-[#FDFBF7] border border-[#D4956A]/30 rounded-xl px-4 py-3 focus:outline-none focus:border-[#8B3A1A] focus:ring-1 focus:ring-[#8B3A1A] transition-colors" placeholder="Comment pouvons-nous vous aider ?"></textarea>
                 </div>
-                <button type="submit" className="w-full bg-[#8B3A1A] hover:bg-[#6e2d14] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2">
-                  <span>Envoyer la Demande</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                  </svg>
+                <button
+                  type="submit"
+                  disabled={formStatus === 'loading'}
+                  className="w-full bg-[#8B3A1A] hover:bg-[#6e2d14] disabled:opacity-60 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2"
+                >
+                  {formStatus === 'loading' ? (
+                    <>
+                      <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <span>Envoyer la Demande</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </form>
             )}
@@ -157,5 +208,17 @@ export default function ContactClient() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ContactClient() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+        <div className="text-[#8B3A1A] font-bold animate-pulse">Chargement...</div>
+      </div>
+    }>
+      <ContactForm />
+    </Suspense>
   );
 }

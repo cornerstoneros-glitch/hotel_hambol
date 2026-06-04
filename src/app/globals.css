@@ -22,12 +22,20 @@
 
 /* Azaguié Green override - applied via data-site attribute by SiteContext */
 [data-site="Azaguié"] {
-  --background:    #F0F5EC;
-  --terre-hambol:  #2D6A4F;
-  --vert-hambol:   #74C69D;
-  --sable-chaud:   #F0F5EC;
-  --terre-cuite:   #74C69D;
+  --background:       #F0F5EC;
+  --color-bg:         #F0F5EC;
+  --color-primary:    #2D6A4F;
+  --color-primary-dk: #1B4332;
+  --color-accent:     #74C69D;
+  --color-hero-dark:  #0A1F15;
+  --color-badge-bg:   #2D6A4F;
+  /* Legacy tokens kept for backwards compat */
+  --terre-hambol:     #2D6A4F;
+  --vert-hambol:      #74C69D;
+  --sable-chaud:      #F0F5EC;
+  --terre-cuite:      #74C69D;
 }
+
 
 @theme inline {
   --color-background: var(--color-bg);

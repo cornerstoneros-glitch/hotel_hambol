@@ -448,8 +448,71 @@ function ServicesShowcaseSection() {
   );
 }
 
+function NewsletterSection() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      setStatus(data.success ? 'success' : 'error');
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <section className="py-32 bg-[#1A1208] text-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 flex flex-col items-center gap-12 relative z-10 text-center">
+        <h3 className="font-title text-5xl font-bold italic">Prêt pour l&apos;évasion ?</h3>
+        <p className="max-w-xl text-white/60 mb-8">
+          Inscrivez-vous à notre newsletter pour recevoir nos offres exclusives et les nouveautés de nos deux domaines.
+        </p>
+        {status === 'success' ? (
+          <div className="flex items-center gap-3 bg-green-500/20 border border-green-500/40 text-green-400 px-8 py-4 rounded-full font-bold">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Inscription confirmée — bienvenue dans la famille Hambol !
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="votre.email@lux.com"
+              className="flex-1 bg-white/5 border border-white/20 rounded-full px-8 py-5 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+            />
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="bg-accent text-white px-10 py-5 rounded-full font-bold hover:bg-white hover:text-primary transition-all shadow-2xl disabled:opacity-60"
+            >
+              {status === 'loading' ? 'Inscription...' : "S'inscrire"}
+            </button>
+          </form>
+        )}
+        {status === 'error' && (
+          <p className="text-red-400 text-sm">Une erreur est survenue. Veuillez réessayer.</p>
+        )}
+      </div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]" />
+    </section>
+  );
+}
+
 export default function HomeClient() {
-  const { currentSite } = useSite();
+  const { currentSite, setCurrentSite } = useSite();
 
   const siteData = {
     'Azaguié': {
@@ -876,23 +939,7 @@ export default function HomeClient() {
       </section>
 
       {/* Final CTA / Newsletter */}
-      <section className="py-32 bg-[#1A1208] text-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col items-center gap-12 relative z-10 text-center">
-            <h3 className="font-title text-5xl font-bold italic">Prêt pour l&apos;évasion ?</h3>
-            <p className="max-w-xl text-white/60 mb-8">Inscrivez-vous à notre newsletter pour recevoir nos offres exclusives et les nouveautés de nos deux domaines.</p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
-                <input 
-                  type="email" 
-                  placeholder="votre.email@lux.com" 
-                  className="flex-1 bg-white/5 border border-white/20 rounded-full px-8 py-5 focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                />
-                <button className="bg-accent text-white px-10 py-5 rounded-full font-bold hover:bg-white hover:text-primary transition-all shadow-2xl">
-                  S&apos;inscrire
-                </button>
-            </div>
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px]" />
-      </section>
+      <NewsletterSection />
 
       {/* Detailed Footer */}
       <footer className="bg-[#0C0804] text-sand/40 py-16 px-6 border-t border-white/5">
@@ -909,8 +956,8 @@ export default function HomeClient() {
           <div className="space-y-6">
             <h4 className="text-white text-xs font-bold tracking-widest uppercase">Domaines</h4>
             <ul className="space-y-4 text-sm">
-              <li><Link href="/" className="hover:text-accent">Hambol Azaguié</Link></li>
-              <li><Link href="/" className="hover:text-accent">Hambol Yopougon</Link></li>
+              <li><button onClick={() => setCurrentSite('Azaguié')} className="hover:text-accent text-left">Hambol Azaguié</button></li>
+              <li><button onClick={() => setCurrentSite('Yopougon')} className="hover:text-accent text-left">Hambol Yopougon</button></li>
             </ul>
           </div>
           <div className="space-y-6">

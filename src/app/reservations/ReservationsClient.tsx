@@ -2,7 +2,7 @@
 
 import { useSite } from '@/context/SiteContext';
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type Step = 'search' | 'selection' | 'confirmation' | 'success';
 
@@ -12,6 +12,18 @@ interface RoomType {
   description: string;
   price: number;
   capacity: number;
+}
+
+function RouterBackButton() {
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => router.push('/')}
+      className="inline-block bg-[#8B3A1A] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#5C2410] transition-all shadow-lg"
+    >
+      Retour à l&apos;Accueil
+    </button>
+  );
 }
 
 function ReservationForm() {
@@ -243,7 +255,7 @@ function ReservationForm() {
                 <div className="flex justify-between text-sm text-[#6B5C4E]">
                   <span>Formule:</span><span className="font-bold text-[#8B3A1A]">{roomTypes.find(r => r.id === formData.roomTypeId)?.name}</span>
                 </div>
-                <div className="flex justify-between text-sm text-[#max-w-xs] text-[#6B5C4E] mt-2 pt-2 border-t border-[#D4956A]/20">
+                <div className="flex justify-between text-sm text-[#6B5C4E] mt-2 pt-2 border-t border-[#D4956A]/20">
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase font-bold text-gray-400">Arrivée</span>
                     <span className="font-bold font-mono">{formData.checkIn ? new Date(formData.checkIn).toLocaleString('fr-FR') : '-'}</span>
@@ -285,12 +297,7 @@ function ReservationForm() {
                 Votre demande de réservation pour <span className="font-bold">{currentSite}</span> a été transmise à notre équipe. 
                 Vous recevrez une confirmation par email très prochainement.
               </p>
-              <button 
-                onClick={() => window.location.href = '/'}
-                className="inline-block bg-[#8B3A1A] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#5C2410] transition-all shadow-lg"
-              >
-                Retour à l&apos;Accueil
-              </button>
+              <RouterBackButton />
             </div>
           )}
         </div>
