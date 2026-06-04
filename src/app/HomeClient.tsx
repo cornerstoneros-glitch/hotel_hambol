@@ -78,6 +78,179 @@ function useParallax() {
   }, []);
 }
 
+function BarPromoSection() {
+  const [index, setIndex] = useState(0);
+  const images = [
+    "/images/yopougon/bar/bar_1.jpeg",
+    "/images/yopougon/bar/bar_2.jpeg",
+    "/images/yopougon/bar/bar_3.jpeg",
+    "/images/yopougon/bar/bar_4.jpeg",
+    "/images/yopougon/bar/bar_5.jpeg",
+    "/images/yopougon/bar/bar_6.jpeg",
+    "/images/yopougon/bar/bar_7.jpeg",
+    "/images/yopougon/bar/bar_8.jpeg",
+  ];
+
+  const slideData = [
+    {
+      title: "Le Lounge VIP",
+      description: "Un espace feutré et climatisé pour vos rendez-vous d'affaires ou vos soirées de détente."
+    },
+    {
+      title: "Ambiance & Lumières",
+      description: "Une atmosphère lumineuse moderne et chaleureuse pour des moments inoubliables."
+    },
+    {
+      title: "Cocktails Créations",
+      description: "Dégustez nos cocktails signatures préparés avec passion par nos barmans experts."
+    },
+    {
+      title: "Sélection de Prestige",
+      description: "Une large gamme de boissons fines, champagnes et spiritueux de grandes marques."
+    },
+    {
+      title: "Confort Absolu",
+      description: "Des fauteuils en cuir confortables et un service aux petits soins pour votre bien-être."
+    },
+    {
+      title: "Événements Privés",
+      description: "Possibilité de privatiser le bar pour vos anniversaires, afterworks et célébrations."
+    },
+    {
+      title: "Soirées à Thème",
+      description: "Vivez l'expérience des soirées animées, karaokés et concerts acoustiques le week-end."
+    },
+    {
+      title: "Rendez-vous entre Amis",
+      description: "Le lieu idéal à Yopougon Ananeraie pour se retrouver et partager de bons moments."
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  const handlePrev = () => {
+    setIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNext = () => {
+    setIndex((prev) => (prev + 1) % images.length);
+  };
+
+  return (
+    <section className="py-24 bg-[#0F0B07] text-[#F5EDE0] relative overflow-hidden reveal">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col lg:flex-row items-center gap-16">
+          {/* Text and description side */}
+          <div className="lg:w-2/5 space-y-8 z-10">
+            <header className="space-y-4">
+              <span className="font-body text-accent font-bold tracking-widest uppercase text-xs">Exclusivité Yopougon</span>
+              <h3 className="font-title text-5xl sm:text-6xl font-bold text-white leading-tight">Le Bar VIP &amp; Lounge</h3>
+            </header>
+            
+            {/* Dynamic Glassmorphic Card */}
+            <div className="glass border border-white/10 p-8 rounded-3xl min-h-[220px] flex flex-col justify-between transition-all duration-500 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="space-y-3">
+                <span className="text-accent text-xs font-bold tracking-widest block uppercase">
+                  Étape {index + 1} sur {images.length}
+                </span>
+                <h4 className="font-title text-3xl font-bold text-white">
+                  {slideData[index].title}
+                </h4>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  {slideData[index].description}
+                </p>
+              </div>
+              <div className="pt-6">
+                <Link 
+                  href="/restaurant?tab=drinks" 
+                  className="inline-flex items-center gap-2 bg-[#8B3A1A] hover:bg-[#A34F2F] text-white px-6 py-3 rounded-full font-bold text-sm transition-all shadow-md hover:scale-105 active:scale-95"
+                >
+                  Découvrir la Carte des Boissons
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* Slider Navigation controls */}
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handlePrev}
+                className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white transition-all"
+                aria-label="Image précédente"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button 
+                onClick={handleNext}
+                className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white transition-all"
+                aria-label="Image suivante"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              
+              {/* Bullets */}
+              <div className="flex gap-2 ml-4">
+                {images.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setIndex(i)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      i === index ? 'bg-accent w-6' : 'bg-white/30'
+                    }`}
+                    aria-label={`Aller à l'image ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Slide Viewer */}
+          <div className="lg:w-3/5 w-full relative h-[450px] sm:h-[550px] rounded-[3.5rem] overflow-hidden shadow-3xl group border-2 border-white/5">
+            {images.map((img, i) => (
+              <div
+                key={img}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  i === index ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
+                }`}
+              >
+                <Image
+                  src={img}
+                  alt={slideData[i].title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  priority={i === 0}
+                />
+                {/* Visual shadow overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30 pointer-events-none" />
+              </div>
+            ))}
+            
+            {/* Elegant glowing frame */}
+            <div className="absolute inset-0 rounded-[3.5rem] border border-white/10 pointer-events-none" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Background decorations */}
+      <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-[#8B3A1A]/10 rounded-full blur-[120px] -mr-64 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#2E7D1E]/5 rounded-full blur-[90px] -ml-32 pointer-events-none" />
+    </section>
+  );
+}
+
 export default function HomeClient() {
   const { currentSite } = useSite();
 
@@ -328,11 +501,14 @@ export default function HomeClient() {
                 <Link href="/contact?subject=reservation" className="bg-white text-primary px-12 py-5 rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-xl block text-center">
                   Réserver une Table
                 </Link>
-             </div>
-             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl" />
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Domain: Bar Yopougon Promotion (uniquement pour Yopougon) */}
+      {currentSite === 'Yopougon' && <BarPromoSection />}
 
       {/* Domain: Loisirs & Activités */}
       <section id="loisirs" className="py-32 px-6 reveal">

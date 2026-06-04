@@ -53,6 +53,21 @@ export default function RestaurantClient() {
     fetchMenu();
   }, [currentSite]);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('tab') === 'drinks') {
+        setActiveTab('drinks');
+        setTimeout(() => {
+          const el = document.getElementById('menu-tabs');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 150);
+      }
+    }
+  }, []);
+
   // Static fallback for Menu du Jour (if not in DB yet)
   const menuDuJourStatic = [
     { day: 'Lundi', items: 'Sauce Légume (Pondeuse, Pintade, Poisson), Kédjénou, Soupe de Carpe', price: '2500F - 8000F' },
@@ -134,7 +149,7 @@ export default function RestaurantClient() {
 
       <main className="max-w-6xl mx-auto py-20 px-6">
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+        <div id="menu-tabs" className="flex flex-wrap justify-center gap-4 mb-16 scroll-mt-24">
           <button
             onClick={() => setActiveTab('main')}
             className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'main' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#F5EDE0] border border-[#D4956A]/20'}`}
