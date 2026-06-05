@@ -7,8 +7,27 @@ export const dynamic = 'force-dynamic';
 
 const DEFAULT_PATH = path.join(process.cwd(), 'src', 'data', 'promotions.json');
 
+// Self-healing database check to create the SystemSetting table on shared hosting environments
+async function ensureSystemSettingTableExists() {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "SystemSetting" (
+        "key" TEXT NOT NULL PRIMARY KEY,
+        "value" TEXT NOT NULL,
+        "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+  } catch (err) {
+    console.error('[promotions-api] Failed to ensure SystemSetting table exists:', err);
+  }
+}
+
 async function getPromotionsData() {
   try {
+    // Ensure the table exists in the connected database
+    await ensureSystemSettingTableExists();
+
     // 1. Try to fetch from DB
     const dbSetting = await prisma.systemSetting.findUnique({
       where: { key: 'promotions' }
@@ -66,6 +85,9 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    // Ensure the table exists in the connected database
+    await ensureSystemSettingTableExists();
+
     const body = await request.json();
     const valueString = JSON.stringify(body);
 
