@@ -185,7 +185,7 @@ export default function AdminDashboard() {
             <span className="text-5xl font-bold text-primary">{stats?.overall?.pendingReservations || 0}</span>
             <span className="text-sm text-gray-400 mb-2">Demandes</span>
           </div>
-          <Link href="/admin/reservations" className="text-accent text-xs font-bold underline block text-left">
+          <Link href="/admin/front-desk" className="text-accent text-xs font-bold underline block text-left">
             Traiter maintenant
           </Link>
         </div>
@@ -260,11 +260,22 @@ export default function AdminDashboard() {
                        })}
                      </p>
                    </div>
-                   <span className={`ml-auto text-[10px] font-bold uppercase px-2 py-1 rounded ${
-                     res.status === 'CONFIRMED' ? 'bg-green-50 text-green-700' :
-                     res.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
-                     'bg-red-50 text-red-700'
-                   }`}>{res.status === 'CONFIRMED' ? 'Confirmé' : res.status === 'PENDING' ? 'En attente' : res.status}</span>
+                    <div className="ml-auto flex items-center gap-2">
+                      <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${
+                        res.status === 'CONFIRMED' ? 'bg-green-50 text-green-700' :
+                        res.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
+                        'bg-red-50 text-red-700'
+                      }`}>{res.status === 'CONFIRMED' ? 'Confirmé' : res.status === 'PENDING' ? 'En attente' : res.status}</span>
+                      
+                      {res.status === 'PENDING' && (
+                        <Link 
+                          href="/admin/front-desk" 
+                          className="px-2 py-1 bg-accent hover:bg-accent/90 text-primary-dk rounded text-[10px] font-bold shadow-sm transition-all"
+                        >
+                          Traiter
+                        </Link>
+                      )}
+                    </div>
                  </div>
                ))
              ) : (

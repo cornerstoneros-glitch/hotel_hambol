@@ -8,8 +8,14 @@ interface Reservation {
   checkIn: string;
   checkOut: string;
   status: string;
-  client: { name: string };
-  room: { number: string };
+  totalPrice: number;
+  client: { 
+    name: string;
+    email: string;
+  };
+  room: { 
+    number: string;
+  };
 }
 
 interface Room {
@@ -24,6 +30,8 @@ export default function ReservationsGrid() {
   const [loading, setLoading] = useState(true);
   const [viewDate, setViewDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRes, setSelectedRes] = useState<Reservation | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   const daysCount = 14; 
   const days = Array.from({ length: daysCount }).map((_, i) => {
@@ -32,28 +40,52 @@ export default function ReservationsGrid() {
     return d;
   });
 
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const siteId = currentSite.toLowerCase().includes('azaguie') || currentSite.toLowerCase().includes('azaguié') 
+        ? 'azaguie' 
+        : 'yopougon';
+      const res = await fetch(`/api/admin/reservations?siteId=${siteId}`);
+      const data = await res.json();
+      setReservations(data.reservations || []);
+      setRooms(data.rooms || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const siteId = currentSite.toLowerCase().includes('azaguie') || currentSite.toLowerCase().includes('azaguié') 
-          ? 'azaguie' 
-          : 'yopougon';
-        const res = await fetch(`/api/admin/reservations?siteId=${siteId}`);
-        const data = await res.json();
-        setReservations(data.reservations || []);
-        setRooms(data.rooms || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadData();
-  }, [currentSite, viewDate]); // Added viewDate as dependency if needed for future filtering
+  }, [currentSite, viewDate]);
+
+  const updateStatus = async (id: string, status: string) => {
+    setProcessing(true);
+    try {
+      const res = await fetch('/api/admin/reservations', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      if (res.ok) {
+        await loadData();
+        setSelectedRes(null);
+      } else {
+        alert('Erreur lors de la mise à jour du statut.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erreur de connexion.');
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   const getOccupancy = (roomNum: string, date: Date) => {
     return reservations.find(res => {
+      if (res.status === 'CANCELLED') return false;
       const start = new Date(res.checkIn);
       const end = new Date(res.checkOut);
       const d = new Date(date);
@@ -63,6 +95,7 @@ export default function ReservationsGrid() {
       return res.room.number === roomNum && d >= start && d < end;
     });
   };
+
 
   return (
     <div className="space-y-8">
@@ -149,9 +182,14 @@ export default function ReservationsGrid() {
                       return (
                         <td key={j} className="p-2 border-r border-gray-50 relative h-16">
                           {res && (
-                            <div className={`absolute inset-1 rounded-lg p-2 text-[10px] font-bold flex flex-col justify-center overflow-hidden transition-all hover:scale-[1.02] cursor-pointer shadow-sm ${
-                              res.status === 'CONFIRMED' ? 'bg-primary text-white' : 'bg-amber-100 text-amber-800'
-                            }`}>
+                            <div 
+                              onClick={() => setSelectedRes(res)}
+                              className={`absolute inset-1 rounded-lg p-2 text-[10px] font-bold flex flex-col justify-center overflow-hidden transition-all hover:scale-[1.02] cursor-pointer shadow-sm ${
+                                res.status === 'CONFIRMED' ? 'bg-primary text-white' : 
+                                res.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800' :
+                                'bg-amber-100 text-amber-800'
+                              }`}
+                            >
                               <span className="truncate">{res.client.name}</span>
                               <span className="opacity-70 font-normal">#{res.id.slice(-4)}</span>
                             </div>
@@ -178,12 +216,16 @@ export default function ReservationsGrid() {
           <span className="text-xs text-gray-500 font-medium">En attente</span>
         </div>
         <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded bg-blue-100" />
+          <span className="text-xs text-gray-500 font-medium">Terminée</span>
+        </div>
+        <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded border border-gray-100" />
           <span className="text-xs text-gray-500 font-medium">Libre</span>
         </div>
       </div>
 
-      {/* Action Modal */}
+      {/* Action Modal (New Reservation) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative">
@@ -206,6 +248,130 @@ export default function ReservationsGrid() {
           </div>
         </div>
       )}
+
+      {/* Detail & Action Modal */}
+      {selectedRes && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl relative border border-gray-100 mx-4">
+            <button 
+              onClick={() => setSelectedRes(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold transition-all text-lg"
+            >
+              ✕
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-3xl">🛎️</span>
+              <div>
+                <h2 className="text-2xl font-bold font-title text-primary">Détails de la Réservation</h2>
+                <p className="text-xs text-gray-400">ID: #{selectedRes.id}</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Client Info */}
+              <div className="bg-sand/20 p-5 rounded-2xl border border-gray-100 space-y-3">
+                <p className="text-[10px] font-bold text-accent uppercase tracking-widest">Informations Client</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">Nom complet</p>
+                    <p className="text-sm font-bold text-primary">{selectedRes.client.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">Adresse E-mail</p>
+                    <p className="text-sm font-bold text-primary truncate">{selectedRes.client.email || 'Non spécifié'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stay Info */}
+              <div className="bg-white p-5 rounded-2xl border border-gray-100 space-y-4">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Détails du Séjour</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">Chambre</p>
+                    <p className="text-sm font-bold text-primary">Suite {selectedRes.room.number}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">Arrivée (Check-In)</p>
+                    <p className="text-xs font-mono font-bold text-primary">
+                      {new Date(selectedRes.checkIn).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">Départ (Check-Out)</p>
+                    <p className="text-xs font-mono font-bold text-primary">
+                      {new Date(selectedRes.checkOut).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-gray-50 flex justify-between items-center">
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-medium">Statut Actuel</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold mt-1 ${
+                      selectedRes.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
+                      selectedRes.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' :
+                      selectedRes.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {selectedRes.status === 'PENDING' ? 'En attente' :
+                       selectedRes.status === 'CONFIRMED' ? 'Confirmé' :
+                       selectedRes.status === 'COMPLETED' ? 'Terminé' : 'Annulé'}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-gray-400 font-medium">Montant Total</p>
+                    <p className="text-lg font-bold text-[#8B3A1A] mt-1">
+                      {selectedRes.totalPrice.toLocaleString()} FCFA
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-gray-100 flex flex-wrap justify-end gap-3">
+                {selectedRes.status !== 'CANCELLED' && selectedRes.status !== 'COMPLETED' && (
+                  <button
+                    disabled={processing}
+                    onClick={() => updateStatus(selectedRes.id, 'CANCELLED')}
+                    className="px-4 py-2.5 bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 text-xs font-bold rounded-xl transition-all active:scale-95"
+                  >
+                    Annuler la Réservation
+                  </button>
+                )}
+
+                {selectedRes.status === 'PENDING' && (
+                  <button
+                    disabled={processing}
+                    onClick={() => updateStatus(selectedRes.id, 'CONFIRMED')}
+                    className="px-5 py-2.5 bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95"
+                  >
+                    Confirmer la Réservation
+                  </button>
+                )}
+
+                {selectedRes.status === 'CONFIRMED' && (
+                  <button
+                    disabled={processing}
+                    onClick={() => updateStatus(selectedRes.id, 'COMPLETED')}
+                    className="px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95"
+                  >
+                    Terminer le séjour (Check-Out)
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setSelectedRes(null)}
+                  className="px-4 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold rounded-xl transition-all active:scale-95"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
