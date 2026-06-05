@@ -49,6 +49,16 @@ export default function LoisirsClient() {
       { name: 'Balade en Forêt Guidée', price: '5000 F', category: 'Nature', site: 'Azaguié', img: '/images/azaguie/outdoor_3.jpg' },
       { name: 'Soirée Night Club VIP', price: 'Sur Réservation', category: 'Divertissement', site: 'Yopougon', img: '/images/yopougon/nightlife.jpg' },
     ],
+    'events': [
+      { name: 'Sorties Détente & Pique-nique', price: 'Tarifs Groupes / Devis', category: 'Détente', site: 'Azaguié', img: '/images/azaguie/outdoor_slide_2.jpg' },
+      { name: 'Team Building (Cohésion d\'Équipe)', price: 'Sur Devis', category: 'Entreprise', site: 'Azaguié', img: '/images/azaguie/team_building.jpg' },
+      { name: 'Séminaires d\'Entreprise au Vert', price: 'Sur Devis', category: 'Professionnel', site: 'Azaguié', img: '/images/azaguie/seminaire_vert.jpg' },
+      { name: 'Mariages en Plein Air au Bord du Lac', price: 'Sur Devis', category: 'Événementiel', site: 'Azaguié', img: '/images/azaguie/lake_wedding.jpg' },
+    ],
+    'adventure': [
+      { name: 'Écotourisme & Biodécouverte', price: 'Visites Guidées', category: 'Nature', site: 'Azaguié', img: '/images/azaguie/greanland.png' },
+      { name: 'Trekking & Randonnées Pédestres', price: '5000 F / personne', category: 'Aventure', site: 'Azaguié', img: '/images/azaguie/trekking_forest.jpg' },
+    ],
     'kids': [
       { name: 'Aire de Jeux Extérieure', price: 'Gratuit', category: 'Enfants', site: 'all', img: '/images/azaguie/outdoor_1.jpg' },
       { name: 'Animations Découvertes', price: 'Sur Programme', category: 'Enfants', site: 'Azaguié', img: '/images/azaguie/outdoor_2.jpg' },
@@ -89,11 +99,23 @@ export default function LoisirsClient() {
           >
             Sports & Jeux
           </button>
-           <button 
+          <button 
             onClick={() => setActiveTab('relax')}
             className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'relax' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#FDFBF7] border border-[#D4956A]/20'}`}
           >
             Détente & Spécialités
+          </button>
+          <button 
+            onClick={() => setActiveTab('events')}
+            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'events' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#FDFBF7] border border-[#D4956A]/20'}`}
+          >
+            Événements & Séminaires
+          </button>
+          <button 
+            onClick={() => setActiveTab('adventure')}
+            className={`px-8 py-3 rounded-full font-bold transition-all ${activeTab === 'adventure' ? 'bg-[#8B3A1A] text-white shadow-xl scale-105' : 'bg-white text-[#8B3A1A] hover:bg-[#FDFBF7] border border-[#D4956A]/20'}`}
+          >
+            Nature & Aventure
           </button>
           <button 
             onClick={() => setActiveTab('kids')}
@@ -109,6 +131,8 @@ export default function LoisirsClient() {
             {activeTab === 'pool' ? 'Complexe Aquatique' : 
              activeTab === 'sports' ? 'Défis & Cohésion' : 
              activeTab === 'relax' ? 'Moments de Grâce' : 
+             activeTab === 'events' ? 'Événements & Séminaires' : 
+             activeTab === 'adventure' ? 'Nature & Écotourisme' : 
              'Activités Juniors'}
           </h2>
 

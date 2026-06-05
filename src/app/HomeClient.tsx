@@ -547,7 +547,14 @@ export default function HomeClient() {
       featureImage: "/images/azaguie/bungalow.jpg",
       rooms: ["11 Chambres Climatisées", "Salle de bain moderne", "TV & Wifi", "Accès Piscine"],
       roomPricing: "À partir de 10.000F (Passage) | 15.000F (Nuitée) | 20.000F (24H)",
-      activities: ["Terrain de Maracana", "Piscine", "Cour pour Concerts", "Hangar Événements"],
+      activities: [
+        { name: "Terrain de Maracana", desc: "Terrain de football en plein air pour vos tournois et activités de team building.", img: "/images/azaguie/outdoor_1.jpg", link: "/loisirs?tab=sports" },
+        { name: "Piscine & Détente Naturelle", desc: "Un grand bassin entouré de nature avec chaises longues et bar immergé.", img: "/images/azaguie/outdoor_slide_1.jpg", link: "/loisirs?tab=pool" },
+        { name: "Mariages au Bord du Lac", desc: "Célébrez votre union dans un cadre magique en plein air au bord de notre lac.", img: "/images/azaguie/lake_wedding.jpg", link: "/loisirs?tab=events" },
+        { name: "Team Building & Séminaires", desc: "Des activités sur mesure et des espaces de réunion au vert pour vos équipes.", img: "/images/azaguie/team_building.jpg", link: "/loisirs?tab=events" },
+        { name: "Trekking & Randonnées", desc: "Parcours guidés à travers nos sentiers forestiers pour les passionnés d'aventure.", img: "/images/azaguie/trekking_forest.jpg", link: "/loisirs?tab=adventure" },
+        { name: "Écotourisme & Biodécouverte", desc: "Une immersion enrichissante au cœur de la faune et de la flore locales.", img: "/images/azaguie/greanland.png", link: "/loisirs?tab=adventure" }
+      ],
       menu: "Restaurant Plein Air : Spécialités Braisées, Terroir & Soupes (Kédjénou)",
       menuHighlights: ["Carpes & Saint Pierre Braisés", "Lapin Soupe / Kédjénou", "Garnitures (Alloco, Attiéké, Frites)"],
       gastronomyImage: "/images/food/dish_1.jpg",
@@ -572,7 +579,12 @@ export default function HomeClient() {
       featureImage: "/images/yopougon/lavage.jpg",
       rooms: ["11 Chambres VIP", "Frigidaire individuel", "Balcon Privé", "Room Service"],
       roomPricing: "À partir de 10.000F (Passage) | 15.000F (Nuitée) | 20.000F (24H)",
-      activities: ["Bar Climatisé", "Salle Irène Touré", "Terrasse 4è Étage", "Lavage Auto RDC"],
+      activities: [
+        { name: "Bar Climatisé", desc: "Un salon VIP intime pour savourer des cocktails fins et des boissons de prestige.", img: "/images/yopougon/hero.jpg", link: "/restaurant?tab=drinks" },
+        { name: "Salle Irène Touré", desc: "Une salle modulable tout équipée pour vos conférences et séminaires.", img: "/images/common/ceremony.jpg", link: "/contact?subject=event" },
+        { name: "Terrasse 4è Étage", desc: "Une terrasse panoramique offrant une vue exceptionnelle sur Yopougon.", img: "/images/common/wedding.jpg", link: "/contact?subject=event" },
+        { name: "Lavage Auto Pro", desc: "Service de lavage professionnel complet pendant que vous vous détendez.", img: "/images/yopougon/lavage.jpg", link: "/contact?subject=other" }
+      ],
       menu: "Restaurant Gastronomique : Menu du Jour & Grillades de Nuit",
       menuHighlights: ["Plats Africains (Gouaguassou, Sauce Graine)", "Cuisine Ivoirienne & Internationale", "Large Choix de Boissons & Sucreries"],
       gastronomyImage: "/images/food/dish_2.jpg",
@@ -810,13 +822,41 @@ export default function HomeClient() {
             </div>
             <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
               {currentData.activities.map((act, i) => (
-                <div key={act} className="group bg-white p-10 rounded-[2.5rem] shadow-xl border border-[#D4956A]/10 hover:bg-[#8B3A1A] transition-all duration-500">
-                  <div className="w-16 h-16 bg-accent/10 group-hover:bg-white/20 text-accent group-hover:text-white rounded-2xl flex items-center justify-center mb-6 transition-colors">
-                     {i % 4 === 0 ? icons.pool : i % 4 === 1 ? icons.nature : i % 4 === 2 ? icons.luxury : icons.events}
+                <Link 
+                  href={act.link} 
+                  key={act.name} 
+                  className="group relative flex flex-col justify-end h-80 rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 border border-[#D4956A]/10 cursor-pointer"
+                >
+                  <Image
+                    src={act.img}
+                    alt={act.name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1208]/90 via-[#1A1208]/45 to-transparent transition-opacity duration-300 group-hover:opacity-95" />
+                  
+                  <div className="relative z-10 p-8 flex flex-col justify-end h-full">
+                    <p className="text-[10px] text-accent font-bold tracking-[0.2em] mb-2 uppercase">
+                      {act.link.includes('tab=events') ? 'Événement / Groupe' : 
+                       act.link.includes('tab=adventure') ? 'Nature & Aventure' :
+                       act.link.includes('tab=pool') ? 'Détente Aquatique' : 
+                       'Sport & Détente'}
+                    </p>
+                    <h4 className="font-title text-2xl font-bold text-white mb-2 group-hover:text-accent transition-colors">{act.name}</h4>
+                    <p className="text-white/70 text-xs leading-relaxed opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-16 transition-all duration-500 overflow-hidden">
+                      {act.desc}
+                    </p>
+                    
+                    <div className="w-full flex justify-between items-center mt-4 border-t border-white/10 pt-4 group-hover:border-accent/30 transition-colors">
+                      <span className="text-white/60 text-xs font-semibold">Découvrir l&apos;offre</span>
+                      <span className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-[#8B3A1A] group-hover:text-white transition-all transform group-hover:translate-x-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
-                  <h4 className="font-title text-2xl font-bold text-[#1A1208] group-hover:text-white transition-colors mb-4">{act}</h4>
-                  <p className="text-gray-500 group-hover:text-white/70 transition-colors text-sm">Disponible tous les jours sur réservation préalable.</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
