@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSite } from '@/context/SiteContext';
+import Link from 'next/link';
 
 interface Stats {
   overall: {
@@ -16,15 +17,29 @@ interface Stats {
     totalRooms: number;
     occupancyRate: number;
     revenue: number;
+    rooms?: Array<{
+      number: string;
+      status: string;
+    }>;
+  }>;
+  recentActivity?: Array<{
+    id: string;
+    clientName: string;
+    roomNumber: string;
+    siteName: string;
+    status: string;
+    createdAt: string;
   }>;
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { currentSite } = useSite();
 
   const fetchStats = async () => {
+    setRefreshing(true);
     try {
       const res = await fetch('/api/admin/stats');
       if (!res.ok) {
@@ -37,6 +52,7 @@ export default function AdminDashboard() {
       setStats(null);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -109,8 +125,22 @@ export default function AdminDashboard() {
           <p className="text-gray-400 text-sm mt-2">Vue d&apos;ensemble de l&apos;Espace Hambol — {currentSite}</p>
         </div>
         <div className="flex gap-4">
-          <button onClick={fetchStats} className="px-4 py-2 bg-white border border-accent/20 rounded-lg text-xs font-bold hover:bg-accent/5 transition-all">
-            Actualiser les données
+          <button 
+            onClick={fetchStats} 
+            disabled={refreshing}
+            className="px-4 py-2 bg-white border border-accent/20 rounded-lg text-xs font-bold hover:bg-accent/5 transition-all flex items-center gap-2"
+          >
+            {refreshing ? (
+              <>
+                <svg className="animate-spin h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Actualisation...
+              </>
+            ) : (
+              'Actualiser les données'
+            )}
           </button>
         </div>
       </header>
@@ -155,7 +185,9 @@ export default function AdminDashboard() {
             <span className="text-5xl font-bold text-primary">{stats?.overall?.pendingReservations || 0}</span>
             <span className="text-sm text-gray-400 mb-2">Demandes</span>
           </div>
-          <button className="text-accent text-xs font-bold underline">Traiter maintenant</button>
+          <Link href="/admin/reservations" className="text-accent text-xs font-bold underline block text-left">
+            Traiter maintenant
+          </Link>
         </div>
       </div>
 
@@ -166,24 +198,45 @@ export default function AdminDashboard() {
           <span className="text-[10px] font-bold px-2 py-1 bg-sand text-accent rounded-full">Temps Réel</span>
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-          {Array.from({ length: 11 }).map((_, i) => {
-            const roomNum = (i + 1 < 10 ? '0' + (i + 1) : '' + (i + 1));
-            // Simulate status based on some logic or hardcode for now
-            const isOccupied = i < (currentSiteStats?.occupiedRooms || 0);
-            return (
-              <div key={i} className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
-                isOccupied ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-white border-gray-100 hover:border-accent'
-              }`}>
-                <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Numéro</span>
-                <span className="text-2xl font-bold font-title">{roomNum}</span>
-                <span className={`text-[8px] font-bold px-2 py-1 rounded-full ${
-                  isOccupied ? 'bg-white/10' : 'bg-green-100 text-green-700'
+          {currentSiteStats?.rooms && currentSiteStats.rooms.length > 0 ? (
+            currentSiteStats.rooms.map((room: any) => {
+              const isOccupied = room.status === 'OCCUPIED';
+              return (
+                <div key={room.number} className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
+                  isOccupied ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-white border-gray-100 hover:border-accent'
                 }`}>
-                  {isOccupied ? 'OCCUPÉ' : 'LIBRE'}
-                </span>
-              </div>
-            );
-          })}
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Numéro</span>
+                  <span className="text-2xl font-bold font-title">{room.number}</span>
+                  <span className={`text-[8px] font-bold px-2 py-1 rounded-full ${
+                    isOccupied ? 'bg-white/10' :
+                    room.status === 'CLEANING' ? 'bg-amber-100 text-amber-700' :
+                    room.status === 'MAINTENANCE' ? 'bg-red-100 text-red-700' :
+                    'bg-green-100 text-green-700'
+                  }`}>
+                    {room.status}
+                  </span>
+                </div>
+              );
+            })
+          ) : (
+            Array.from({ length: 11 }).map((_, i) => {
+              const roomNum = (i + 1 < 10 ? '0' + (i + 1) : '' + (i + 1));
+              const isOccupied = i < (currentSiteStats?.occupiedRooms || 0);
+              return (
+                <div key={i} className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
+                  isOccupied ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-white border-gray-100 hover:border-accent'
+                }`}>
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Numéro</span>
+                  <span className="text-2xl font-bold font-title">{roomNum}</span>
+                  <span className={`text-[8px] font-bold px-2 py-1 rounded-full ${
+                    isOccupied ? 'bg-white/10' : 'bg-green-100 text-green-700'
+                  }`}>
+                    {isOccupied ? 'OCCUPÉ' : 'LIBRE'}
+                  </span>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -192,16 +245,31 @@ export default function AdminDashboard() {
         <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
            <h2 className="text-xl font-bold text-primary mb-6">Activité Récente</h2>
            <div className="space-y-6">
-             {[1, 2, 3].map(i => (
-               <div key={i} className="flex gap-4 items-start pb-6 border-b border-gray-50 last:border-0 last:pb-0">
-                 <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center font-bold text-accent">R</div>
-                 <div className="space-y-1">
-                   <p className="text-sm font-bold text-primary">Nouvelle Réservation #HMB-293{i}</p>
-                   <p className="text-xs text-gray-400">Par Jean Dupont • Aujourd&apos;hui à 10:30</p>
+             {stats?.recentActivity && stats.recentActivity.length > 0 ? (
+               stats.recentActivity.map((res: any) => (
+                 <div key={res.id} className="flex gap-4 items-start pb-6 border-b border-gray-50 last:border-0 last:pb-0">
+                   <div className="w-10 h-10 rounded-xl bg-sand flex items-center justify-center font-bold text-accent">
+                     {res.clientName?.[0]?.toUpperCase() || 'R'}
+                   </div>
+                   <div className="space-y-1">
+                     <p className="text-sm font-bold text-primary">Réservation Ch. {res.roomNumber} ({res.siteName})</p>
+                     <p className="text-xs text-gray-400">
+                       Par {res.clientName} • {new Date(res.createdAt).toLocaleDateString('fr-FR', {
+                         hour: '2-digit',
+                         minute: '2-digit'
+                       })}
+                     </p>
+                   </div>
+                   <span className={`ml-auto text-[10px] font-bold uppercase px-2 py-1 rounded ${
+                     res.status === 'CONFIRMED' ? 'bg-green-50 text-green-700' :
+                     res.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
+                     'bg-red-50 text-red-700'
+                   }`}>{res.status === 'CONFIRMED' ? 'Confirmé' : res.status === 'PENDING' ? 'En attente' : res.status}</span>
                  </div>
-                 <span className="ml-auto text-[10px] font-bold text-green-500 uppercase">Confirmé</span>
-               </div>
-             ))}
+               ))
+             ) : (
+               <p className="text-gray-400 text-sm italic text-center py-6">Aucune activité récente.</p>
+             )}
            </div>
         </div>
 

@@ -33,12 +33,34 @@ export async function GET() {
         occupiedRooms,
         totalRooms,
         occupancyRate: Math.round(occupancyRate),
-        revenue: site.rooms.reduce((acc, room) => acc + (room.reservations.reduce((rAcc, r) => rAcc + r.totalPrice, 0)), 0)
+        revenue: site.rooms.reduce((acc, room) => acc + (room.reservations.reduce((rAcc, r) => rAcc + r.totalPrice, 0)), 0),
+        rooms: site.rooms.map(room => ({
+          number: room.number,
+          status: room.status,
+        }))
       };
     });
 
     const totalOccupancy = Math.round(stats.reduce((acc, s) => acc + s.occupancyRate, 0) / sites.length);
     const totalRevenue = stats.reduce((acc, s) => acc + s.revenue, 0);
+
+    const recentActivity = await prisma.reservation.findMany({
+      take: 3,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        client: { select: { name: true } },
+        room: { select: { number: true, site: { select: { name: true } } } }
+      }
+    });
+
+    const recentFormatted = recentActivity.map(r => ({
+      id: r.id,
+      clientName: r.client?.name || 'Client',
+      roomNumber: r.room?.number || 'N/A',
+      siteName: r.room?.site?.name || 'N/A',
+      status: r.status,
+      createdAt: r.createdAt.toISOString()
+    }));
 
     return NextResponse.json({ 
       overall: {
@@ -46,7 +68,8 @@ export async function GET() {
         revenue: totalRevenue,
         pendingReservations: await prisma.reservation.count({ where: { status: 'PENDING' } })
       },
-      sites: stats 
+      sites: stats,
+      recentActivity: recentFormatted
     });
   } catch (error) {
     console.error('Stats fetch error:', error);
