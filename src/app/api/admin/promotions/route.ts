@@ -83,6 +83,9 @@ export async function PUT(request: Request) {
     });
   } catch (error) {
     console.error('Promotions write error:', error);
-    return NextResponse.json({ error: 'Erreur lors de la sauvegarde' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Erreur lors de la sauvegarde',
+      detail: String(error)
+    }, { status: 500 });
   }
 }

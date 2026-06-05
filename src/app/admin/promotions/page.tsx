@@ -560,7 +560,7 @@ export default function PromotionsAdmin() {
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        alert(`Erreur lors de la sauvegarde : ${errJson.error || res.statusText || 'Erreur inconnue'}`);
+        alert(`Erreur lors de la sauvegarde : ${errJson.error || res.statusText || 'Erreur inconnue'}\n\nDétails : ${errJson.detail || 'Aucun détail'}`);
         return;
       }
       setSaved(true);
