@@ -58,6 +58,64 @@ const DEFAULT_DATA: PromosData = {
   },
 };
 
+// Client-side image compression helper to avoid hitting payload size limits
+const compressImage = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.7): Promise<File> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = () => resolve(file); // fallback to original on error
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 // ── Sub-component: one card per site ──────────────────────────────────────────
 interface SiteCardProps {
   site: SiteName;
@@ -72,24 +130,28 @@ function SiteCard({ site, activeTab, item, onUpdate }: SiteCardProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
 
-    const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     setUploadError('');
 
-    const fd = new FormData();
-    fd.append('file', file);
-
     try {
+      // Compress image to ensure payload is small and uploads fast
+      const compressedFile = await compressImage(file);
+      console.log(`[promo-upload] Original size: ${(file.size / 1024).toFixed(1)} KB, Compressed: ${(compressedFile.size / 1024).toFixed(1)} KB`);
+
+      const fd = new FormData();
+      fd.append('file', compressedFile);
+
       const res = await fetch('/api/admin/upload/promotions', {
         method: 'POST',
         body: fd,
       });
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.url) {
-        setUploadError(json.error || json.detail || 'Erreur inconnue');
+        setUploadError(json.error || json.detail || `Erreur serveur (${res.status})`);
         return;
       }
       onUpdate('imageUrl', json.url);
@@ -303,7 +365,7 @@ function SiteCard({ site, activeTab, item, onUpdate }: SiteCardProps) {
 
       <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Image preview */}
-        {item.imageUrl && (
+        {item.imageUrl && item.imageUrl.length > 8 && (
           <div style={{ textAlign: 'center', borderRadius: 12, overflow: 'hidden', border: '1px solid #E5E7EB', background: '#F9FAFB' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -491,13 +553,20 @@ export default function PromotionsAdmin() {
   const save = async () => {
     setSaving(true);
     try {
-      await fetch('/api/admin/promotions', {
+      const res = await fetch('/api/admin/promotions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        alert(`Erreur lors de la sauvegarde : ${errJson.error || res.statusText || 'Erreur inconnue'}`);
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      alert(`Erreur : ${String(err)}`);
     } finally {
       setSaving(false);
     }
