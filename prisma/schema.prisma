@@ -202,3 +202,10 @@ model DishComponent {
   dish     Dish    @relation(fields: [dishId], references: [id], onDelete: Cascade)
   dishId   String
 }
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

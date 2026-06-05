@@ -1,26 +1,56 @@
 import { NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import prisma from '@/lib/prisma';
+import { readFile } from 'fs/promises';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
-const PERSISTENT_PATH = path.join(process.cwd(), 'prisma', 'promotions.json');
 const DEFAULT_PATH = path.join(process.cwd(), 'src', 'data', 'promotions.json');
 
 async function getPromotionsData() {
   try {
-    if (existsSync(PERSISTENT_PATH)) {
-      const raw = await readFile(PERSISTENT_PATH, 'utf-8');
-      return JSON.parse(raw);
+    // 1. Try to fetch from DB
+    const dbSetting = await prisma.systemSetting.findUnique({
+      where: { key: 'promotions' }
+    });
+
+    if (dbSetting) {
+      return JSON.parse(dbSetting.value);
     }
-    // Auto-migrate from template on first load
-    const raw = await readFile(DEFAULT_PATH, 'utf-8');
-    const parsed = JSON.parse(raw);
-    await writeFile(PERSISTENT_PATH, JSON.stringify(parsed, null, 2), 'utf-8');
+
+    // 2. If not found in DB, auto-migrate from src/data/promotions.json template
+    console.log('[promotions-api] Promotions not found in DB. Auto-migrating template...');
+    let parsed = {};
+    try {
+      const raw = await readFile(DEFAULT_PATH, 'utf-8');
+      parsed = JSON.parse(raw);
+    } catch (fileErr) {
+      console.warn('[promotions-api] Template file not found or invalid:', fileErr);
+      // Fallback structure in case the template file is not copied in Next standalone build
+      parsed = {
+        "Azaguié": {
+          "popup": { "enabled": false, "imageUrl": "", "link": "", "title": "Offre Spéciale Azaguié" },
+          "floatingAd": { "enabled": false, "imageUrl": "", "link": "", "title": "Découvrez nos offres", "delayMs": 6000, "intervalMs": 45000 },
+          "socials": []
+        },
+        "Yopougon": {
+          "popup": { "enabled": false, "imageUrl": "", "link": "", "title": "Offre Spéciale Yopougon" },
+          "floatingAd": { "enabled": false, "imageUrl": "", "link": "", "title": "Découvrez nos offres", "delayMs": 6000, "intervalMs": 45000 },
+          "socials": []
+        }
+      };
+    }
+
+    // Save initial config to DB
+    await prisma.systemSetting.upsert({
+      where: { key: 'promotions' },
+      update: { value: JSON.stringify(parsed) },
+      create: { key: 'promotions', value: JSON.stringify(parsed) }
+    });
+
     return parsed;
   } catch (error) {
-    console.error('[promotions-api] Error reading data:', error);
+    console.error('[promotions-api] Error reading promotions:', error);
     return {};
   }
 }
@@ -37,9 +67,15 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    await writeFile(PERSISTENT_PATH, JSON.stringify(body, null, 2), 'utf-8');
+    const valueString = JSON.stringify(body);
+
+    await prisma.systemSetting.upsert({
+      where: { key: 'promotions' },
+      update: { value: valueString },
+      create: { key: 'promotions', value: valueString }
+    });
     
-    console.log(`[promotions-api] Successfully saved promotions to ${PERSISTENT_PATH}`);
+    console.log('[promotions-api] Successfully saved promotions to database');
     return NextResponse.json({ success: true }, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
